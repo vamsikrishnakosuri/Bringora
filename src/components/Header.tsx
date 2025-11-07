@@ -9,7 +9,6 @@ import ThemeToggle from './ThemeToggle'
 
 export default function Header() {
   const { user, signOut } = useAuth()
-  const { theme, toggleTheme } = useTheme()
   const { language, setLanguage, t } = useLanguage()
   const [showLangMenu, setShowLangMenu] = useState(false)
   const navigate = useNavigate()
