@@ -28,10 +28,10 @@ export default function FeatureCard({
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
             <Icon className="w-8 h-8 text-background dark:text-background-dark relative z-10" />
           </div>
-          <h3 className="text-2xl font-bold mb-2 group-hover:text-foreground dark:group-hover:text-foreground transition-colors duration-300">
+          <h3 className="text-2xl font-bold mb-3 group-hover:text-foreground dark:group-hover:text-white transition-colors duration-300 tracking-tight">
             {title}
           </h3>
-          <p className="text-muted dark:text-muted text-sm leading-relaxed group-hover:text-foreground/80 dark:group-hover:text-foreground/80 transition-colors duration-300">
+          <p className="text-muted dark:text-muted/90 text-sm leading-relaxed group-hover:text-foreground/80 dark:group-hover:text-gray-300 transition-colors duration-300 font-normal">
             {description}
           </p>
         </div>
@@ -40,11 +40,11 @@ export default function FeatureCard({
           {features.map((feature, index) => (
             <li 
               key={index} 
-              className="flex items-center gap-2 text-sm group-hover:translate-x-1 transition-transform duration-300"
+              className="flex items-center gap-2 text-sm group-hover:translate-x-1 transition-transform duration-300 dark:text-gray-300"
               style={{ transitionDelay: `${index * 50}ms` }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-muted dark:bg-muted group-hover:bg-foreground dark:group-hover:bg-foreground transition-colors duration-300"></span>
-              <span>{feature}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-muted dark:bg-gray-400 group-hover:bg-foreground dark:group-hover:bg-white transition-colors duration-300"></span>
+              <span className="font-normal">{feature}</span>
             </li>
           ))}
         </ul>

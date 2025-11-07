@@ -31,10 +31,12 @@ export default function Home() {
       <AnimatedBackground />
       <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="text-center mb-16 animate-fade-in">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 animate-slide-up">
-            <span className="gradient-text">{t('app.tagline')}</span>
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-slide-up tracking-tight">
+            <span className="gradient-text dark:text-foreground dark:bg-gradient-to-r dark:from-white dark:via-gray-200 dark:to-white dark:bg-clip-text dark:text-transparent">
+              {t('app.tagline')}
+            </span>
           </h1>
-          <p className="text-xl text-muted dark:text-muted max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <p className="text-xl text-muted dark:text-muted/90 max-w-2xl mx-auto animate-slide-up font-light leading-relaxed" style={{ animationDelay: '0.2s' }}>
             {t('app.subtitle')}
           </p>
         </div>

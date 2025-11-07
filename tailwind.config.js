@@ -7,27 +7,30 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
-        // Monochrome premium theme
+        // Premium monochrome theme with better contrast
         background: {
           DEFAULT: '#FFFFFF',
-          dark: '#000000',
+          dark: '#0A0A0A', // Slightly off-black for depth
         },
         foreground: {
           DEFAULT: '#000000',
-          dark: '#FFFFFF',
+          dark: '#F5F5F5', // Soft white for better readability
         },
         card: {
-          DEFAULT: '#F5F5F5',
-          dark: '#1A1A1A',
+          DEFAULT: '#FAFAFA',
+          dark: '#1A1A1A', // Dark charcoal with subtle warmth
         },
         border: {
-          DEFAULT: '#E5E5E5',
-          dark: '#333333',
+          DEFAULT: '#E8E8E8',
+          dark: '#2A2A2A', // Lighter border for better definition
         },
         muted: {
-          DEFAULT: '#9A9A9A',
-          dark: '#666666',
+          DEFAULT: '#6B6B6B',
+          dark: '#A0A0A0', // Lighter gray for better contrast
         },
         accent: {
           DEFAULT: '#000000',
@@ -61,9 +64,11 @@ export default {
       },
       boxShadow: {
         'premium': '0 10px 40px rgba(0, 0, 0, 0.1)',
-        'premium-dark': '0 10px 40px rgba(255, 255, 255, 0.05)',
+        'premium-dark': '0 10px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)',
         'card': '0 4px 20px rgba(0, 0, 0, 0.08)',
-        'card-dark': '0 4px 20px rgba(255, 255, 255, 0.03)',
+        'card-dark': '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08)',
+        'glow': '0 0 20px rgba(255, 255, 255, 0.1)',
+        'glow-dark': '0 0 30px rgba(255, 255, 255, 0.15)',
       },
     },
   },

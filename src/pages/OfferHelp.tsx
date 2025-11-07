@@ -76,22 +76,22 @@ export default function OfferHelp() {
             {requests.map((request, index) => (
               <Card 
                 key={request.id} 
-                className="hover:scale-[1.03] hover:-translate-y-2 transition-all duration-300 animate-fade-in"
+                className="hover:scale-[1.03] hover:-translate-y-2 transition-all duration-300 animate-fade-in group"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <h3 className="text-xl font-bold mb-2">{request.title}</h3>
-                <p className="text-muted dark:text-muted text-sm mb-4 line-clamp-3">
+                <h3 className="text-xl font-bold mb-2 dark:text-gray-100 tracking-tight">{request.title}</h3>
+                <p className="text-muted dark:text-gray-400 text-sm mb-4 line-clamp-3 leading-relaxed">
                   {request.description}
                 </p>
 
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin className="w-4 h-4 text-muted dark:text-muted" />
-                    <span>{request.location}</span>
+                  <div className="flex items-center gap-2 text-sm dark:text-gray-300">
+                    <MapPin className="w-4 h-4 text-muted dark:text-gray-400" />
+                    <span className="font-normal">{request.location}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Clock className="w-4 h-4 text-muted dark:text-muted" />
-                    <span>
+                  <div className="flex items-center gap-2 text-sm dark:text-gray-300">
+                    <Clock className="w-4 h-4 text-muted dark:text-gray-400" />
+                    <span className="font-normal">
                       {new Date(request.created_at).toLocaleDateString()}
                     </span>
                   </div>

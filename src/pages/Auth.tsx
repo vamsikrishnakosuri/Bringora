@@ -116,8 +116,8 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background dark:bg-background-dark px-4">
-      <Card className="max-w-md w-full">
-        <h2 className="text-3xl font-bold mb-6 text-center">
+      <Card className="max-w-md w-full dark:bg-gradient-to-b dark:from-[#1A1A1A] dark:to-[#151515]">
+        <h2 className="text-3xl font-bold mb-6 text-center tracking-tight dark:text-gray-100">
           {isResetPassword
             ? t('auth.resetPassword')
             : isSignUp
@@ -126,7 +126,7 @@ export default function Auth() {
         </h2>
 
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
+          <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 dark:border dark:border-red-800/50 text-red-600 dark:text-red-300 text-sm">
             {error}
           </div>
         )}
