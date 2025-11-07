@@ -43,12 +43,12 @@ export default function Header() {
             >
               <Globe className="w-4 h-4" />
               <span className="text-sm">
-                {LANGUAGES.find((l) => l.code === language)?.name}
+                {LANGUAGES.find((l: { code: string; name: string }) => l.code === language)?.name}
               </span>
             </button>
             {showLangMenu && (
               <div className="absolute right-0 mt-2 w-40 bg-card dark:bg-card-dark border border-border dark:border-border-dark rounded-lg shadow-lg z-50">
-                {LANGUAGES.map((lang) => (
+                {LANGUAGES.map((lang: { code: string; name: string }) => (
                   <button
                     key={lang.code}
                     onClick={() => {

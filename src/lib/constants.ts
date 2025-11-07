@@ -9,5 +9,5 @@ export const LANGUAGES = [
 
 export type LanguageCode = typeof LANGUAGES[number]['code']
 
-export const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || ''
+export const MAPBOX_TOKEN = (import.meta.env?.VITE_MAPBOX_TOKEN as string) || ''
 

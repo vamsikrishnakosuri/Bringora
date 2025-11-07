@@ -92,7 +92,7 @@ export default function RequestHelp() {
                 <Input
                   type="text"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
                   placeholder="e.g., Need help moving furniture"
                   className="pl-10"
                   required
@@ -104,7 +104,7 @@ export default function RequestHelp() {
               <label className="block text-sm font-medium mb-2">Description</label>
               <textarea
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
                 placeholder="Describe what kind of help you need..."
                 className="flex min-h-[120px] w-full rounded-lg border border-border dark:border-border-dark bg-background dark:bg-background-dark px-3 py-2 text-sm placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
                 required
@@ -118,7 +118,7 @@ export default function RequestHelp() {
                 <Input
                   type="text"
                   value={location}
-                  onChange={(e) => setLocation(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocation(e.target.value)}
                   placeholder="Enter your address or area"
                   className="pl-10"
                   required
@@ -133,7 +133,7 @@ export default function RequestHelp() {
                 <Input
                   type="tel"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
                   placeholder="+1 234 567 8900"
                   className="pl-10"
                   required

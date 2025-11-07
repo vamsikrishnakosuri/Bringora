@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({
   children,
-  requireAdmin = false,
+  requireAdmin: _requireAdmin = false,
 }: ProtectedRouteProps) {
   const { user, loading } = useAuth()
 

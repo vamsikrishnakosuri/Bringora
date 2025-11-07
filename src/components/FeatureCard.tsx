@@ -1,7 +1,6 @@
 import { LucideIcon } from 'lucide-react'
 import Card from './ui/Card'
 import Button from './ui/Button'
-import { useLanguage } from '@/contexts/LanguageContext'
 
 interface FeatureCardProps {
   icon: LucideIcon
@@ -20,8 +19,6 @@ export default function FeatureCard({
   buttonText,
   onClick,
 }: FeatureCardProps) {
-  const { t } = useLanguage()
-
   return (
     <Card className="flex flex-col h-full group hover:scale-[1.02] transition-transform duration-300">
       <div className="flex-1">
