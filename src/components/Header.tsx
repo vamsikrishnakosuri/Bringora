@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from './ui/Button'
 import ThemeToggle from './ThemeToggle'
+import Logo from './Logo'
 
 export default function Header() {
   const { user, signOut } = useAuth()
@@ -22,15 +23,10 @@ export default function Header() {
     <header className="w-full border-b border-border dark:border-border-dark bg-background dark:bg-background-dark">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div
-          className="flex items-center gap-2 cursor-pointer"
+          className="cursor-pointer"
           onClick={() => navigate('/')}
         >
-          <div className="w-8 h-8 bg-foreground dark:bg-foreground rounded-lg flex items-center justify-center">
-            <span className="text-background dark:text-background-dark font-bold text-lg">
-              B
-            </span>
-          </div>
-          <span className="text-xl font-bold">{t('app.name')}</span>
+          <Logo />
         </div>
 
         <div className="flex items-center gap-4">
