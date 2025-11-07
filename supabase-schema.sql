@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS help_requests (
   fixed_amount DECIMAL(10, 2),
   min_amount DECIMAL(10, 2),
   max_amount DECIMAL(10, 2),
+  preference_shop TEXT,
   additional_info TEXT,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'completed', 'cancelled')),
   helper_id UUID REFERENCES auth.users(id),
@@ -81,6 +82,11 @@ BEGIN
   -- Add max_amount if it doesn't exist
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'help_requests' AND column_name = 'max_amount') THEN
     ALTER TABLE help_requests ADD COLUMN max_amount DECIMAL(10, 2);
+  END IF;
+  
+  -- Add preference_shop if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'help_requests' AND column_name = 'preference_shop') THEN
+    ALTER TABLE help_requests ADD COLUMN preference_shop TEXT;
   END IF;
   
   -- Add additional_info if it doesn't exist

@@ -28,6 +28,7 @@ function AppContent() {
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/request-help" element={<RequestHelp />} />
         <Route path="/offer-help" element={<OfferHelp />} />
+        <Route path="/my-requests" element={<MyRequests />} />
         <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </div>

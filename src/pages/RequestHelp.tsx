@@ -7,7 +7,7 @@ import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import LocationPicker from '@/components/LocationPicker'
-import { FileText, Phone, Calendar, Clock, DollarSign, MapPin, User } from 'lucide-react'
+import { FileText, Phone, Calendar, Clock, DollarSign, MapPin, User, ShoppingBag } from 'lucide-react'
 
 interface RequestSummary {
   category: string
@@ -26,6 +26,7 @@ interface RequestSummary {
   fixedAmount?: number
   minAmount?: number
   maxAmount?: number
+  preferenceShop: string
   additionalInfo: string
 }
 
@@ -93,6 +94,7 @@ export default function RequestHelp() {
         fixed_amount: paymentType === 'fixed' ? parseFloat(fixedAmount) : null,
         min_amount: paymentType === 'range' ? parseFloat(minAmount) : null,
         max_amount: paymentType === 'range' ? parseFloat(maxAmount) : null,
+        preference_shop: preferenceShop || null,
         additional_info: additionalInfo,
         status: 'pending',
       }
@@ -115,6 +117,7 @@ export default function RequestHelp() {
       setFixedAmount('')
       setMinAmount('')
       setMaxAmount('')
+      setPreferenceShop('')
       setAdditionalInfo('')
       
       alert('Request submitted successfully!')
@@ -139,6 +142,7 @@ export default function RequestHelp() {
     fixedAmount: paymentType === 'fixed' ? parseFloat(fixedAmount) : undefined,
     minAmount: paymentType === 'range' ? parseFloat(minAmount) : undefined,
     maxAmount: paymentType === 'range' ? parseFloat(maxAmount) : undefined,
+    preferenceShop,
     additionalInfo,
   }
 
@@ -216,6 +220,16 @@ export default function RequestHelp() {
                   </p>
                 </div>
               </div>
+
+              {summary.preferenceShop && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-2 dark:text-white">Preferred Shop/Store</h3>
+                  <div className="flex items-center gap-3">
+                    <ShoppingBag className="w-5 h-5 text-muted dark:text-gray-400" />
+                    <p className="text-foreground dark:text-white">{summary.preferenceShop}</p>
+                  </div>
+                </div>
+              )}
 
               {summary.additionalInfo && (
                 <div>

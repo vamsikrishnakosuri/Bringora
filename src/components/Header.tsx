@@ -1,4 +1,4 @@
-import { Globe, LogOut } from 'lucide-react'
+import { Globe, LogOut, FileText } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LANGUAGES, LanguageCode } from '@/lib/constants'
@@ -65,6 +65,19 @@ export default function Header() {
 
           {/* Theme Toggle */}
           <ThemeToggle />
+
+          {/* My Requests */}
+          {user && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/my-requests')}
+              className="flex items-center gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              <span>My Requests</span>
+            </Button>
+          )}
 
           {/* Sign Out */}
           {user && (
