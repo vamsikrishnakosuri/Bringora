@@ -48,6 +48,7 @@ export default function RequestHelp() {
   const [fixedAmount, setFixedAmount] = useState('')
   const [minAmount, setMinAmount] = useState('')
   const [maxAmount, setMaxAmount] = useState('')
+  const [preferenceShop, setPreferenceShop] = useState('')
   const [additionalInfo, setAdditionalInfo] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
