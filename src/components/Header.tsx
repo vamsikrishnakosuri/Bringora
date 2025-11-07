@@ -2,7 +2,7 @@ import { Globe, Moon, Sun, LogOut } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { LANGUAGES } from '@/lib/constants'
+import { LANGUAGES, LanguageCode } from '@/lib/constants'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from './ui/Button'
@@ -52,7 +52,7 @@ export default function Header() {
                   <button
                     key={lang.code}
                     onClick={() => {
-                      setLanguage(lang.code)
+                      setLanguage(lang.code as LanguageCode)
                       setShowLangMenu(false)
                     }}
                     className={`w-full text-left px-4 py-2 text-sm hover:bg-foreground hover:text-background dark:hover:bg-foreground dark:hover:text-background-dark transition-colors first:rounded-t-lg last:rounded-b-lg ${
