@@ -60,7 +60,9 @@ export default function Logo({ className = '' }: { className?: string }) {
           className="transition-colors duration-300"
         />
       </svg>
-      <span className="text-xl font-bold">Bringora</span>
+      <span className="text-xl font-bold text-foreground dark:text-foreground transition-colors duration-300">
+        Bringora
+      </span>
     </div>
   )
 }
