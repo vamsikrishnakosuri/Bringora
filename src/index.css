@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    @apply bg-gradient-to-r from-foreground via-muted to-foreground bg-clip-text text-transparent;
+    background-size: 200% auto;
+    animation: gradient 8s linear infinite;
+  }
+  
+  .premium-shadow {
+    @apply shadow-premium dark:shadow-premium-dark;
+  }
+  
+  .card-shadow {
+    @apply shadow-card dark:shadow-card-dark;
+  }
+}
+
