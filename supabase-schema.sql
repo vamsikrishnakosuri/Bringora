@@ -49,6 +49,11 @@ CREATE TABLE IF NOT EXISTS helpers (
   rating DECIMAL(3, 2) DEFAULT 0,
   total_tasks INTEGER DEFAULT 0,
   is_active BOOLEAN DEFAULT TRUE,
+  service_location TEXT,
+  service_latitude DECIMAL(10, 8),
+  service_longitude DECIMAL(11, 8),
+  service_radius DECIMAL(10, 2),
+  service_radius_unit TEXT DEFAULT 'km' CHECK (service_radius_unit IN ('km', 'miles')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -59,6 +64,8 @@ CREATE TABLE IF NOT EXISTS helper_applications (
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
   admin_notes TEXT,
+  id_photo_url TEXT,
+  selfie_photo_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   reviewed_at TIMESTAMP WITH TIME ZONE,
   reviewed_by UUID REFERENCES auth.users(id)
