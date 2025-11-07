@@ -40,6 +40,55 @@ CREATE TABLE IF NOT EXISTS help_requests (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- If table already exists, add missing columns
+DO $$ 
+BEGIN
+  -- Add requester_name if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'help_requests' AND column_name = 'requester_name') THEN
+    ALTER TABLE help_requests ADD COLUMN requester_name TEXT;
+  END IF;
+  
+  -- Add date_needed if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'help_requests' AND column_name = 'date_needed') THEN
+    ALTER TABLE help_requests ADD COLUMN date_needed DATE;
+  END IF;
+  
+  -- Add time_needed if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'help_requests' AND column_name = 'time_needed') THEN
+    ALTER TABLE help_requests ADD COLUMN time_needed TIME;
+  END IF;
+  
+  -- Add duration if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'help_requests' AND column_name = 'duration') THEN
+    ALTER TABLE help_requests ADD COLUMN duration TEXT;
+  END IF;
+  
+  -- Add payment_type if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'help_requests' AND column_name = 'payment_type') THEN
+    ALTER TABLE help_requests ADD COLUMN payment_type TEXT CHECK (payment_type IN ('fixed', 'range'));
+  END IF;
+  
+  -- Add fixed_amount if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'help_requests' AND column_name = 'fixed_amount') THEN
+    ALTER TABLE help_requests ADD COLUMN fixed_amount DECIMAL(10, 2);
+  END IF;
+  
+  -- Add min_amount if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'help_requests' AND column_name = 'min_amount') THEN
+    ALTER TABLE help_requests ADD COLUMN min_amount DECIMAL(10, 2);
+  END IF;
+  
+  -- Add max_amount if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'help_requests' AND column_name = 'max_amount') THEN
+    ALTER TABLE help_requests ADD COLUMN max_amount DECIMAL(10, 2);
+  END IF;
+  
+  -- Add additional_info if it doesn't exist
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'help_requests' AND column_name = 'additional_info') THEN
+    ALTER TABLE help_requests ADD COLUMN additional_info TEXT;
+  END IF;
+END $$;
+
 -- Helpers table
 CREATE TABLE IF NOT EXISTS helpers (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
