@@ -20,12 +20,12 @@ export default function FeatureCard({
   onClick,
 }: FeatureCardProps) {
   return (
-    <Card className="flex flex-col h-full group hover:scale-[1.03] transition-all duration-500 hover:-translate-y-2 animate-fade-in">
+    <Card className="flex flex-col h-full group hover:scale-[1.03] transition-all duration-500 hover:-translate-y-2 animate-fade-in isolate">
       <div className="flex-1">
         <div className="mb-6">
           <div className="w-16 h-16 rounded-xl bg-foreground dark:bg-foreground flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 relative overflow-hidden">
-            {/* Animated glow effect on hover */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+            {/* Animated glow effect on hover - only for this card */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none"></div>
             <Icon className="w-8 h-8 text-background dark:text-background-dark relative z-10" />
           </div>
           <h3 className="text-2xl font-bold mb-3 group-hover:text-foreground dark:group-hover:text-white transition-colors duration-300 tracking-tight">
@@ -55,8 +55,8 @@ export default function FeatureCard({
         className="w-full group-hover:shadow-xl group-hover:shadow-foreground/20 dark:group-hover:shadow-foreground/10 transition-all duration-300 relative overflow-hidden"
       >
         <span className="relative z-10">{buttonText}</span>
-        {/* Shine effect on hover */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+        {/* Shine effect on hover - scoped to this button only */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none"></div>
       </Button>
     </Card>
   )
