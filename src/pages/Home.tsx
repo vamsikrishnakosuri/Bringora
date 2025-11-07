@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import FeatureCard from '@/components/FeatureCard'
+import AnimatedBackground from '@/components/AnimatedBackground'
 import { Phone, HeartHandshake } from 'lucide-react'
 
 export default function Home() {
@@ -26,13 +27,14 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-background dark:bg-background-dark">
-      <div className="container mx-auto px-4 py-16">
+    <div className="min-h-screen bg-background dark:bg-background-dark relative overflow-hidden">
+      <AnimatedBackground />
+      <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="text-center mb-16 animate-fade-in">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">
+          <h1 className="text-5xl md:text-6xl font-bold mb-4 animate-slide-up">
             <span className="gradient-text">{t('app.tagline')}</span>
           </h1>
-          <p className="text-xl text-muted dark:text-muted max-w-2xl mx-auto">
+          <p className="text-xl text-muted dark:text-muted max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
             {t('app.subtitle')}
           </p>
         </div>

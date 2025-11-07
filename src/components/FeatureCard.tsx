@@ -20,22 +20,30 @@ export default function FeatureCard({
   onClick,
 }: FeatureCardProps) {
   return (
-    <Card className="flex flex-col h-full group hover:scale-[1.02] transition-transform duration-300">
+    <Card className="flex flex-col h-full group hover:scale-[1.03] transition-all duration-500 hover:-translate-y-2 animate-fade-in">
       <div className="flex-1">
         <div className="mb-6">
-          <div className="w-16 h-16 rounded-xl bg-foreground dark:bg-foreground flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-            <Icon className="w-8 h-8 text-background dark:text-background-dark" />
+          <div className="w-16 h-16 rounded-xl bg-foreground dark:bg-foreground flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 relative overflow-hidden">
+            {/* Animated glow effect on hover */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+            <Icon className="w-8 h-8 text-background dark:text-background-dark relative z-10" />
           </div>
-          <h3 className="text-2xl font-bold mb-2">{title}</h3>
-          <p className="text-muted dark:text-muted text-sm leading-relaxed">
+          <h3 className="text-2xl font-bold mb-2 group-hover:text-foreground dark:group-hover:text-foreground transition-colors duration-300">
+            {title}
+          </h3>
+          <p className="text-muted dark:text-muted text-sm leading-relaxed group-hover:text-foreground/80 dark:group-hover:text-foreground/80 transition-colors duration-300">
             {description}
           </p>
         </div>
 
         <ul className="space-y-2 mb-6">
           {features.map((feature, index) => (
-            <li key={index} className="flex items-center gap-2 text-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-muted dark:bg-muted"></span>
+            <li 
+              key={index} 
+              className="flex items-center gap-2 text-sm group-hover:translate-x-1 transition-transform duration-300"
+              style={{ transitionDelay: `${index * 50}ms` }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-muted dark:bg-muted group-hover:bg-foreground dark:group-hover:bg-foreground transition-colors duration-300"></span>
               <span>{feature}</span>
             </li>
           ))}
@@ -44,9 +52,11 @@ export default function FeatureCard({
 
       <Button
         onClick={onClick}
-        className="w-full group-hover:shadow-lg transition-shadow duration-300"
+        className="w-full group-hover:shadow-xl group-hover:shadow-foreground/20 dark:group-hover:shadow-foreground/10 transition-all duration-300 relative overflow-hidden"
       >
-        {buttonText}
+        <span className="relative z-10">{buttonText}</span>
+        {/* Shine effect on hover */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
       </Button>
     </Card>
   )

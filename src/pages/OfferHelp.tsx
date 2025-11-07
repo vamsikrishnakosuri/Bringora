@@ -60,7 +60,10 @@ export default function OfferHelp() {
 
         {loading ? (
           <div className="text-center py-12">
-            <p className="text-muted dark:text-muted">Loading requests...</p>
+            <div className="inline-block">
+              <div className="w-12 h-12 border-4 border-muted dark:border-muted border-t-foreground dark:border-t-foreground rounded-full animate-spin"></div>
+            </div>
+            <p className="text-muted dark:text-muted mt-4">Loading requests...</p>
           </div>
         ) : requests.length === 0 ? (
           <Card className="text-center py-12">
@@ -70,8 +73,12 @@ export default function OfferHelp() {
           </Card>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {requests.map((request) => (
-              <Card key={request.id} className="hover:scale-[1.02] transition-transform duration-300">
+            {requests.map((request, index) => (
+              <Card 
+                key={request.id} 
+                className="hover:scale-[1.03] hover:-translate-y-2 transition-all duration-300 animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
                 <h3 className="text-xl font-bold mb-2">{request.title}</h3>
                 <p className="text-muted dark:text-muted text-sm mb-4 line-clamp-3">
                   {request.description}

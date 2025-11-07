@@ -73,7 +73,7 @@ export default function RequestHelp() {
   return (
     <div className="min-h-screen bg-background dark:bg-background-dark py-12 px-4">
       <div className="container mx-auto max-w-2xl">
-        <h1 className="text-4xl font-bold mb-8 text-center">
+        <h1 className="text-4xl font-bold mb-8 text-center animate-fade-in">
           {t('card.requestHelp.title')}
         </h1>
 
