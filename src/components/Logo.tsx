@@ -3,9 +3,14 @@ import { useTheme } from '@/contexts/ThemeContext'
 export default function Logo({ className = '' }: { className?: string }) {
   const { theme } = useTheme()
   
-  // Invert colors: dark chevrons in light mode, light chevrons in dark mode
-  const chevronColor = theme === 'dark' ? '#FFFFFF' : '#000000'
-  const backgroundColor = theme === 'dark' ? '#000000' : '#FFFFFF'
+  // For dark mode: white chevrons on black (original design)
+  // For light mode: black chevrons on white (inverted for visibility)
+  const isDark = theme === 'dark'
+  
+  // Gradient colors - inverted based on theme
+  const gradientColors = isDark 
+    ? ['#404040', '#707070', '#A0A0A0', '#FFFFFF'] // Dark to light (original)
+    : ['#BFBFBF', '#8F8F8F', '#5F5F5F', '#000000'] // Light to dark (inverted)
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
@@ -17,48 +22,70 @@ export default function Logo({ className = '' }: { className?: string }) {
         xmlns="http://www.w3.org/2000/svg"
         className="flex-shrink-0"
       >
-        {/* Background circle/square for contrast */}
+        {/* Background - black in dark mode, white in light mode */}
         <rect
           width="32"
           height="32"
           rx="6"
-          fill={backgroundColor}
+          fill={isDark ? '#000000' : '#FFFFFF'}
           className="transition-colors duration-300"
         />
         
-        {/* Top row of chevrons */}
-        <path
-          d="M 6 10 L 10 12 L 6 14 Z"
-          fill={chevronColor}
-          className="transition-colors duration-300"
-        />
-        <path
-          d="M 12 10 L 16 12 L 12 14 Z"
-          fill={chevronColor}
-          className="transition-colors duration-300"
-        />
-        <path
-          d="M 18 10 L 22 12 L 18 14 Z"
-          fill={chevronColor}
-          className="transition-colors duration-300"
-        />
+        {/* Top Chevron with gradient layers */}
+        <g>
+          {/* Layer 1 - Darkest (leftmost) */}
+          <path
+            d="M 6 10 L 8 11 L 6 12 Z"
+            fill={gradientColors[0]}
+            className="transition-colors duration-300"
+          />
+          {/* Layer 2 - Medium dark */}
+          <path
+            d="M 8 10 L 10 11 L 8 12 Z"
+            fill={gradientColors[1]}
+            className="transition-colors duration-300"
+          />
+          {/* Layer 3 - Medium light */}
+          <path
+            d="M 10 10 L 12 11 L 10 12 Z"
+            fill={gradientColors[2]}
+            className="transition-colors duration-300"
+          />
+          {/* Layer 4 - Brightest (rightmost) */}
+          <path
+            d="M 12 10 L 14 11 L 12 12 Z"
+            fill={gradientColors[3]}
+            className="transition-colors duration-300"
+          />
+        </g>
         
-        {/* Bottom row of chevrons */}
-        <path
-          d="M 6 18 L 10 20 L 6 22 Z"
-          fill={chevronColor}
-          className="transition-colors duration-300"
-        />
-        <path
-          d="M 12 18 L 16 20 L 12 22 Z"
-          fill={chevronColor}
-          className="transition-colors duration-300"
-        />
-        <path
-          d="M 18 18 L 22 20 L 18 22 Z"
-          fill={chevronColor}
-          className="transition-colors duration-300"
-        />
+        {/* Bottom Chevron with gradient layers (mirrored) */}
+        <g>
+          {/* Layer 1 - Darkest (leftmost) */}
+          <path
+            d="M 6 20 L 8 21 L 6 22 Z"
+            fill={gradientColors[0]}
+            className="transition-colors duration-300"
+          />
+          {/* Layer 2 - Medium dark */}
+          <path
+            d="M 8 20 L 10 21 L 8 22 Z"
+            fill={gradientColors[1]}
+            className="transition-colors duration-300"
+          />
+          {/* Layer 3 - Medium light */}
+          <path
+            d="M 10 20 L 12 21 L 10 22 Z"
+            fill={gradientColors[2]}
+            className="transition-colors duration-300"
+          />
+          {/* Layer 4 - Brightest (rightmost) */}
+          <path
+            d="M 12 20 L 14 21 L 12 22 Z"
+            fill={gradientColors[3]}
+            className="transition-colors duration-300"
+          />
+        </g>
       </svg>
       <span className="text-xl font-bold text-foreground dark:text-foreground transition-colors duration-300">
         Bringora
@@ -66,4 +93,3 @@ export default function Logo({ className = '' }: { className?: string }) {
     </div>
   )
 }
-
