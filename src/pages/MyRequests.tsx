@@ -68,16 +68,19 @@ export default function MyRequests() {
     }
   }
 
-  const getCategoryFromTitle = (title: string): string => {
+  const getCategoryFromTitle = (title: string, description?: string): string => {
     const lowerTitle = title.toLowerCase()
-    if (lowerTitle.includes('cleaning')) return 'cleaning'
-    if (lowerTitle.includes('cooking')) return 'cooking'
-    if (lowerTitle.includes('delivery')) return 'delivery'
-    if (lowerTitle.includes('moving')) return 'moving'
-    if (lowerTitle.includes('repair')) return 'repairs'
-    if (lowerTitle.includes('tutor')) return 'tutoring'
-    if (lowerTitle.includes('pet')) return 'pet-care'
-    if (lowerTitle.includes('grocery') || lowerTitle.includes('groceries')) return 'groceries'
+    const lowerDescription = description?.toLowerCase() || ''
+    const combined = `${lowerTitle} ${lowerDescription}`
+    
+    if (combined.includes('cleaning')) return 'cleaning'
+    if (combined.includes('cooking')) return 'cooking'
+    if (combined.includes('delivery')) return 'delivery'
+    if (combined.includes('moving')) return 'moving'
+    if (combined.includes('repair')) return 'repairs'
+    if (combined.includes('tutor')) return 'tutoring'
+    if (combined.includes('pet')) return 'pet-care'
+    if (combined.includes('grocery') || combined.includes('groceries')) return 'groceries'
     return 'other'
   }
 

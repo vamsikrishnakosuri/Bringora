@@ -8,6 +8,7 @@ import Auth from './pages/Auth'
 import AuthCallback from './pages/AuthCallback'
 import RequestHelp from './pages/RequestHelp'
 import OfferHelp from './pages/OfferHelp'
+import MyRequests from './pages/MyRequests'
 import AdminDashboard from './pages/AdminDashboard'
 import { useEffect } from 'react'
 
