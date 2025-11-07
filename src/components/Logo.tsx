@@ -7,24 +7,29 @@ export default function Logo({ className = '' }: { className?: string }) {
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <div className="relative flex-shrink-0">
-        {/* Logo image with theme-aware filter for visibility */}
-        <img
-          src={logoImage}
-          alt="Bringora Logo"
-          width="32"
-          height="32"
-          className={`transition-all duration-300 ${
-            isDark 
-              ? 'brightness-0 invert-0' // Original dark logo on dark background
-              : 'brightness-0 invert' // Invert for light mode (white triangles become black)
+      <div className="relative flex-shrink-0 w-8 h-8">
+        {/* Logo container with background */}
+        <div 
+          className={`w-full h-full rounded-lg flex items-center justify-center transition-colors duration-300 ${
+            isDark ? 'bg-black' : 'bg-white'
           }`}
-          style={{
-            filter: isDark 
-              ? 'none' // Keep original in dark mode
-              : 'invert(1) brightness(0)' // Invert colors for light mode
-          }}
-        />
+        >
+          {/* Logo image - invert in light mode to show white triangles as black */}
+          <img
+            src={logoImage}
+            alt="Bringora Logo"
+            className={`w-full h-full object-contain transition-all duration-300 ${
+              isDark 
+                ? '' // Keep original in dark mode
+                : 'brightness-0 invert' // Invert: white becomes black, black becomes white
+            }`}
+            style={{
+              filter: isDark 
+                ? 'none' 
+                : 'brightness(0) invert(1)' // Makes white triangles black, black bg becomes white
+            }}
+          />
+        </div>
       </div>
       <span className="text-xl font-bold text-foreground dark:text-foreground transition-colors duration-300">
         Bringora
