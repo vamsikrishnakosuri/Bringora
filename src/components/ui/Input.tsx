@@ -14,7 +14,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           'placeholder:text-muted',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2',
           'disabled:cursor-not-allowed disabled:opacity-50',
-          'dark:bg-background-dark dark:border-border-dark',
+          'backdrop-blur-sm bg-white/80 dark:bg-[#1A1A1A]/80',
+          'border-white/20 dark:border-white/10',
+          'text-foreground dark:text-white',
+          'focus:bg-white dark:focus:bg-[#1A1A1A]/90',
+          'focus:border-white/30 dark:focus:border-white/20',
+          'placeholder:text-muted dark:placeholder:text-gray-400',
           className
         )}
         ref={ref}
