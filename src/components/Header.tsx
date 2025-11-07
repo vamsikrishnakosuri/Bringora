@@ -1,11 +1,11 @@
-import { Globe, Moon, Sun, LogOut } from 'lucide-react'
+import { Globe, LogOut } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useTheme } from '@/contexts/ThemeContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LANGUAGES, LanguageCode } from '@/lib/constants'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from './ui/Button'
+import ThemeToggle from './ThemeToggle'
 
 export default function Header() {
   const { user, signOut } = useAuth()
@@ -69,17 +69,7 @@ export default function Header() {
           </div>
 
           {/* Theme Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-lg hover:bg-card dark:hover:bg-card-dark transition-colors"
-            aria-label="Toggle theme"
-          >
-            {theme === 'dark' ? (
-              <Sun className="w-5 h-5" />
-            ) : (
-              <Moon className="w-5 h-5" />
-            )}
-          </button>
+          <ThemeToggle />
 
           {/* Sign Out */}
           {user && (
