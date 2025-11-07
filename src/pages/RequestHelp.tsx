@@ -106,23 +106,8 @@ export default function RequestHelp() {
 
       if (insertError) throw insertError
 
-      // Reset form
-      setStep('form')
-      setCategory('')
-      setDate('')
-      setTime('')
-      setDuration('')
-      setRequesterName('')
-      setPhone('')
-      setLocation(null)
-      setFixedAmount('')
-      setMinAmount('')
-      setMaxAmount('')
-      setPreferenceShop('')
-      setAdditionalInfo('')
-      
-      alert('Request submitted successfully!')
-      navigate('/')
+      // Navigate to browse requests page to see the submitted request
+      navigate('/browse-requests')
     } catch (err: any) {
       setError(err.message || 'Failed to submit request')
     } finally {
