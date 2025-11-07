@@ -19,29 +19,32 @@ export default function ThemeToggle() {
         }`}
       />
 
-      {/* Single sliding element: Sun transforms to Moon */}
+      {/* Single sliding container: Sun transforms to Moon as it slides */}
       <div
-        className="absolute top-1/2 w-8 h-8 rounded-full transition-all duration-700 ease-in-out transform -translate-y-1/2"
+        className="absolute top-1/2 w-8 h-8 rounded-full transform -translate-y-1/2 transition-all duration-700 ease-in-out"
         style={{
           left: isDark ? 'calc(100% - 2.5rem)' : '0.25rem',
-          transform: `translateY(-50%) ${isDark ? 'rotate(360deg)' : 'rotate(0deg)'}`,
         }}
       >
-        {/* Sun (visible in light mode) */}
+        {/* Sun - fades out as it moves right */}
         <div
-          className={`absolute inset-0 rounded-full transition-all duration-700 ${
-            isDark ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
-          }`}
+          className="absolute inset-0 rounded-full transition-all duration-700"
+          style={{
+            opacity: isDark ? 0 : 1,
+            transform: isDark ? 'scale(0) rotate(180deg)' : 'scale(1) rotate(0deg)',
+          }}
         >
           <div className="absolute inset-0 rounded-full bg-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.6),0_0_40px_rgba(250,204,21,0.4)]" />
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500" />
         </div>
 
-        {/* Moon (visible in dark mode) */}
+        {/* Moon - fades in as it moves left */}
         <div
-          className={`absolute inset-0 rounded-full transition-all duration-700 ${
-            isDark ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
-          }`}
+          className="absolute inset-0 rounded-full transition-all duration-700"
+          style={{
+            opacity: isDark ? 1 : 0,
+            transform: isDark ? 'scale(1) rotate(180deg)' : 'scale(0) rotate(0deg)',
+          }}
         >
           <div className="absolute inset-0 rounded-full bg-gray-300 dark:bg-gray-400" />
           {/* Moon craters */}
@@ -51,25 +54,22 @@ export default function ThemeToggle() {
         </div>
       </div>
 
-      {/* Light Mode: Realistic Clouds */}
+      {/* Light Mode: Realistic Clouds using SVG */}
       <div
         className={`absolute right-2 top-1/2 transform -translate-y-1/2 transition-opacity duration-700 ${
           isDark ? 'opacity-0' : 'opacity-100'
         }`}
       >
-        <svg width="32" height="20" viewBox="0 0 32 20" className="pointer-events-none">
-          {/* Cloud 1 - Main cloud */}
-          <ellipse cx="12" cy="12" rx="6" ry="4" fill="white" opacity="0.95" />
-          <ellipse cx="16" cy="10" rx="5" ry="3.5" fill="white" opacity="0.95" />
-          <ellipse cx="20" cy="12" rx="5" ry="4" fill="white" opacity="0.95" />
+        <svg width="28" height="18" viewBox="0 0 28 18" className="pointer-events-none">
+          {/* Main cloud - larger, more realistic */}
+          <ellipse cx="10" cy="11" rx="5" ry="3.5" fill="white" opacity="0.95" />
+          <ellipse cx="13" cy="9" rx="4.5" ry="3" fill="white" opacity="0.95" />
+          <ellipse cx="16" cy="11" rx="4.5" ry="3.5" fill="white" opacity="0.95" />
+          <ellipse cx="19" cy="9.5" rx="3.5" ry="2.5" fill="white" opacity="0.95" />
           
-          {/* Cloud 2 - Smaller cloud above */}
-          <ellipse cx="18" cy="6" rx="3" ry="2" fill="white" opacity="0.9" />
-          <ellipse cx="20" cy="5" rx="2.5" ry="1.8" fill="white" opacity="0.9" />
-          
-          {/* Cloud 3 - Small cloud below */}
-          <ellipse cx="24" cy="16" rx="2.5" ry="2" fill="white" opacity="0.85" />
-          <ellipse cx="26" cy="15.5" rx="2" ry="1.5" fill="white" opacity="0.85" />
+          {/* Smaller cloud puff above */}
+          <ellipse cx="15" cy="5" rx="2.5" ry="1.8" fill="white" opacity="0.9" />
+          <ellipse cx="17" cy="4.5" rx="2" ry="1.5" fill="white" opacity="0.9" />
         </svg>
       </div>
 
@@ -79,7 +79,7 @@ export default function ThemeToggle() {
           isDark ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        {/* Twinkling stars with staggered animations */}
+        {/* Twinkling stars */}
         <div 
           className="absolute left-3 top-2 w-1 h-1 rounded-full bg-white animate-pulse" 
           style={{ animationDelay: '0s', animationDuration: '2s' }}
