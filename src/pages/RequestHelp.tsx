@@ -71,13 +71,13 @@ export default function RequestHelp() {
   }
 
   return (
-    <div className="min-h-screen bg-background dark:bg-background-dark py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-12 px-4">
       <div className="container mx-auto max-w-2xl">
-        <h1 className="text-4xl font-bold mb-8 text-center animate-fade-in">
+        <h1 className="text-4xl font-bold mb-8 text-center animate-fade-in dark:text-white tracking-tight">
           {t('card.requestHelp.title')}
         </h1>
 
-        <Card className="dark:bg-gradient-to-b dark:from-[#1A1A1A] dark:to-[#151515]">
+        <Card className="backdrop-blur-xl bg-white/80 dark:bg-[#1A1A1A]/80 border-white/20 dark:border-white/10">
           {error && (
             <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 dark:border dark:border-red-800/50 text-red-600 dark:text-red-300 text-sm">
               {error}

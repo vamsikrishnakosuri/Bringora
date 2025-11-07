@@ -115,8 +115,8 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background dark:bg-background-dark px-4">
-      <Card className="max-w-md w-full dark:bg-gradient-to-b dark:from-[#1A1A1A] dark:to-[#151515]">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] px-4">
+      <Card className="max-w-md w-full backdrop-blur-xl bg-white/80 dark:bg-[#1A1A1A]/80 border-white/20 dark:border-white/10">
         <h2 className="text-3xl font-bold mb-6 text-center tracking-tight dark:text-gray-100">
           {isResetPassword
             ? t('auth.resetPassword')

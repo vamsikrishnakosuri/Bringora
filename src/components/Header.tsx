@@ -20,7 +20,7 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full border-b border-border dark:border-[#2A2A2A] bg-background dark:bg-[#0A0A0A] backdrop-blur-sm dark:backdrop-blur-sm">
+    <header className="w-full border-b border-white/20 dark:border-white/10 bg-white/80 dark:bg-[#0A0A0A]/80 backdrop-blur-xl dark:backdrop-blur-xl sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div
           className="cursor-pointer"

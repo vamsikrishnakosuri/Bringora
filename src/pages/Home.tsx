@@ -27,7 +27,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-background dark:bg-background-dark relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] relative overflow-hidden">
       <AnimatedBackground />
       <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="text-center mb-16 animate-fade-in">

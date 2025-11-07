@@ -52,9 +52,9 @@ export default function OfferHelp() {
   }
 
   return (
-    <div className="min-h-screen bg-background dark:bg-background-dark py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-12 px-4">
       <div className="container mx-auto max-w-6xl">
-        <h1 className="text-4xl font-bold mb-8 text-center">
+        <h1 className="text-4xl font-bold mb-8 text-center dark:text-white tracking-tight">
           {t('card.offerHelp.title')}
         </h1>
 
