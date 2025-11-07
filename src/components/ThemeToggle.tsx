@@ -26,24 +26,24 @@ export default function ThemeToggle() {
         }`}
       />
 
-      {/* Light Mode: Sun */}
+      {/* Light Mode: Sun - slides from left to right */}
       <div
-        className={`absolute left-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full transition-all duration-700 ease-in-out ${
+        className={`absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded-full transition-all duration-700 ease-in-out ${
           theme === 'dark'
-            ? 'translate-x-0 opacity-0 scale-0 rotate-0'
-            : 'translate-x-0 opacity-100 scale-100 rotate-360'
+            ? 'left-1 translate-x-0 opacity-0 scale-0 rotate-0'
+            : 'left-1 translate-x-0 opacity-100 scale-100 rotate-360'
         } ${isAnimating ? 'animate-spin' : ''}`}
       >
         <div className="absolute inset-0 rounded-full bg-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.6),0_0_40px_rgba(250,204,21,0.4)]" />
         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500" />
       </div>
 
-      {/* Dark Mode: Moon */}
+      {/* Dark Mode: Moon - slides from right to left */}
       <div
-        className={`absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full transition-all duration-700 ease-in-out ${
+        className={`absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded-full transition-all duration-700 ease-in-out ${
           theme === 'dark'
-            ? 'translate-x-0 opacity-100 scale-100 rotate-360'
-            : 'translate-x-0 opacity-0 scale-0 rotate-0'
+            ? 'right-1 translate-x-0 opacity-100 scale-100 rotate-360'
+            : 'right-1 translate-x-0 opacity-0 scale-0 rotate-0'
         } ${isAnimating ? 'animate-spin' : ''}`}
       >
         <div className="absolute inset-0 rounded-full bg-gray-300 dark:bg-gray-400" />
