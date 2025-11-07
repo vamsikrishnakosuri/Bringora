@@ -471,6 +471,21 @@ export default function RequestHelp() {
               </div>
             </div>
 
+            {/* Preference Shop/Store */}
+            <div>
+              <label className="block text-sm font-medium mb-2 dark:text-white">Preferred Shop/Store/Place (Optional)</label>
+              <div className="relative">
+                <ShoppingBag className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted dark:text-gray-400" />
+                <Input
+                  type="text"
+                  value={preferenceShop}
+                  onChange={(e) => setPreferenceShop(e.target.value)}
+                  placeholder="e.g., Walmart, Local Market, Specific Address"
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
             {/* Additional Information */}
             <div>
               <label className="block text-sm font-medium mb-2 dark:text-white">Additional Information (Optional)</label>
