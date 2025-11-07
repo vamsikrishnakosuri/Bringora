@@ -10,7 +10,7 @@ export default function Logo({ className = '' }: { className?: string }) {
         height="32"
         className="flex-shrink-0"
       />
-      <span className="text-xl font-bold text-foreground dark:text-foreground transition-colors duration-300">
+      <span className="text-xl font-bold text-foreground dark:text-white transition-colors duration-300">
         Bringora
       </span>
     </div>

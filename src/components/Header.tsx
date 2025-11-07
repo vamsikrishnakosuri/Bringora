@@ -34,15 +34,15 @@ export default function Header() {
           <div className="relative">
             <button
               onClick={() => setShowLangMenu(!showLangMenu)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-card dark:hover:bg-card-dark transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 dark:hover:bg-white/10 transition-colors backdrop-blur-sm border border-white/20 dark:border-white/10"
             >
-              <Globe className="w-4 h-4" />
-              <span className="text-sm">
+              <Globe className="w-4 h-4 text-foreground dark:text-white" />
+              <span className="text-sm text-foreground dark:text-white">
                 {LANGUAGES.find((l: { code: string; name: string }) => l.code === language)?.name}
               </span>
             </button>
             {showLangMenu && (
-              <div className="absolute right-0 mt-2 w-40 bg-card dark:bg-card-dark border border-border dark:border-border-dark rounded-lg shadow-lg z-50">
+              <div className="absolute right-0 mt-2 w-40 backdrop-blur-xl bg-white/90 dark:bg-[#1A1A1A]/90 border border-white/20 dark:border-white/10 rounded-lg shadow-lg z-50">
                 {LANGUAGES.map((lang: { code: string; name: string }) => (
                   <button
                     key={lang.code}
@@ -50,10 +50,10 @@ export default function Header() {
                       setLanguage(lang.code as LanguageCode)
                       setShowLangMenu(false)
                     }}
-                    className={`w-full text-left px-4 py-2 text-sm hover:bg-foreground hover:text-background dark:hover:bg-foreground dark:hover:text-background-dark transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors first:rounded-t-lg last:rounded-b-lg ${
                       language === lang.code
-                        ? 'bg-foreground text-background dark:bg-foreground dark:text-background-dark'
-                        : ''
+                        ? 'bg-foreground text-background dark:bg-white/20 dark:text-white'
+                        : 'text-foreground dark:text-white hover:bg-white/10 dark:hover:bg-white/10'
                     }`}
                   >
                     {lang.name}
