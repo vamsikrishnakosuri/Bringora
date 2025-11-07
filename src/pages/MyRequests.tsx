@@ -127,7 +127,7 @@ export default function MyRequests() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {requests.map((request) => {
-              const category = getCategoryFromTitle(request.title)
+              const category = getCategoryFromTitle(request.title, request.description)
               const imageUrl = categoryImages[category] || categoryImages.other
               
               return (

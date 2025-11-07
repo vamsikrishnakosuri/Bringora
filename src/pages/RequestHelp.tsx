@@ -80,7 +80,7 @@ export default function RequestHelp() {
     try {
       const requestData = {
         user_id: user.id,
-        title: category || 'Help Request',
+        title: category ? `${category.charAt(0).toUpperCase() + category.slice(1)} Help Request` : 'Help Request',
         description: `Category: ${category}\nDate: ${date}\nTime: ${time}\nDuration: ${duration} ${durationUnit}\nAdditional Info: ${additionalInfo || 'None'}`,
         location: location!.address,
         latitude: location!.latitude,
