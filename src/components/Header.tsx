@@ -147,30 +147,29 @@ export default function Header() {
             </Button>
           )}
 
-          {/* Profile Button */}
+          {/* Profile Avatar/Icon */}
           {user && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={() => navigate('/profile')}
               aria-label="View profile"
-              className="flex items-center gap-2 min-h-[44px] text-foreground dark:text-white hover:text-foreground dark:hover:text-white"
+              className="flex items-center gap-2 min-h-[44px] min-w-[44px] rounded-full hover:bg-white/10 dark:hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-foreground dark:focus:ring-white focus:ring-offset-2 p-1"
             >
-              <img 
-                src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
-                alt="Profile" 
-                className="w-5 h-5 object-contain"
-                onError={(e) => {
-                  // Fallback to User icon if Flaticon fails to load
-                  const target = e.target as HTMLImageElement
-                  target.style.display = 'none'
-                  const fallback = document.createElement('div')
-                  fallback.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>'
-                  target.parentElement?.appendChild(fallback)
-                }}
-              />
-              <span className="hidden sm:inline">Profile</span>
-            </Button>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={user.user_metadata?.full_name || user.email || 'Profile'}
+                  className="w-8 h-8 rounded-full object-cover border-2 border-white/20 dark:border-white/10"
+                  onError={() => setAvatarUrl(null)}
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-foreground to-muted dark:from-white dark:to-gray-400 flex items-center justify-center border-2 border-white/20 dark:border-white/10">
+                  <User className="w-4 h-4 text-background dark:text-[#0A0A0A]" aria-hidden="true" />
+                </div>
+              )}
+              <span className="hidden lg:inline text-foreground dark:text-white font-medium">
+                {user.user_metadata?.full_name || user.email?.split('@')[0] || 'Profile'}
+              </span>
+            </button>
           )}
 
           {/* Sign Out */}
@@ -266,29 +265,34 @@ export default function Header() {
 
             {/* Profile Mobile */}
             {user && (
-              <Button
-                variant="ghost"
+              <button
                 onClick={() => {
                   navigate('/profile')
                   setShowMobileMenu(false)
                 }}
-                className="w-full justify-start min-h-[44px] text-foreground dark:text-white hover:text-foreground dark:hover:text-white"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 dark:hover:bg-white/10 transition-colors min-h-[44px] text-foreground dark:text-white"
               >
-                <img 
-                  src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
-                  alt="Profile" 
-                  className="w-5 h-5 mr-3 object-contain"
-                  onError={(e) => {
-                    // Fallback to User icon if Flaticon fails to load
-                    const target = e.target as HTMLImageElement
-                    target.style.display = 'none'
-                    const fallback = document.createElement('div')
-                    fallback.innerHTML = '<svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>'
-                    target.parentElement?.appendChild(fallback)
-                  }}
-                />
-                <span>Profile</span>
-              </Button>
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={user.user_metadata?.full_name || user.email || 'Profile'}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-white/20 dark:border-white/10"
+                    onError={() => setAvatarUrl(null)}
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-foreground to-muted dark:from-white dark:to-gray-400 flex items-center justify-center border-2 border-white/20 dark:border-white/10">
+                    <User className="w-5 h-5 text-background dark:text-[#0A0A0A]" />
+                  </div>
+                )}
+                <div className="flex flex-col">
+                  <span className="font-medium text-sm">
+                    {user.user_metadata?.full_name || 'Profile'}
+                  </span>
+                  <span className="text-xs text-muted dark:text-gray-400">
+                    {user.email}
+                  </span>
+                </div>
+              </button>
             )}
 
             {/* Sign Out Mobile */}
