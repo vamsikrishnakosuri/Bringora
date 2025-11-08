@@ -126,7 +126,8 @@ export default function RequestHelp() {
     setError('')
 
     try {
-      const requestData = {
+      // Build request data, conditionally including preferred_contact_methods
+      const requestData: any = {
         user_id: user.id,
         title: category ? `${category.charAt(0).toUpperCase() + category.slice(1)} Help Request` : 'Help Request',
         description: `Category: ${category}\nDate: ${date}\nTime: ${time}\nDuration: ${duration} ${durationUnit}\nAdditional Info: ${additionalInfo || 'None'}`,
@@ -142,19 +143,51 @@ export default function RequestHelp() {
         fixed_amount: paymentType === 'fixed' ? parseFloat(fixedAmount) : null,
         min_amount: paymentType === 'range' ? parseFloat(minAmount) : null,
         max_amount: paymentType === 'range' ? parseFloat(maxAmount) : null,
-                preference_shop: preferenceShop || null,
-                additional_info: additionalInfo,
-                preferred_contact_methods: preferredContactMethods.length > 0 ? preferredContactMethods : ['call', 'message', 'email'], // Fallback if empty
-                status: 'pending',
-              }
+        preference_shop: preferenceShop || null,
+        additional_info: additionalInfo,
+        status: 'pending',
+      }
 
-      const { error: insertError } = await supabase
-        .from('help_requests')
-        .insert(requestData)
+      // Only include preferred_contact_methods if column exists (will be handled by try-catch)
+      const contactMethods = preferredContactMethods.length > 0 ? preferredContactMethods : ['call', 'message', 'email']
+      
+      // Try inserting with preferred_contact_methods first
+      let insertError = null
+      try {
+        const { error } = await supabase
+          .from('help_requests')
+          .insert({ ...requestData, preferred_contact_methods: contactMethods })
+        insertError = error
+      } catch (err: any) {
+        // If error is about missing column, try without it
+        if (err.message?.includes('preferred_contact_methods') || err.message?.includes('column')) {
+          console.warn('preferred_contact_methods column not found, inserting without it. Please run the SQL migration.')
+          const { error } = await supabase
+            .from('help_requests')
+            .insert(requestData)
+          insertError = error
+        } else {
+          throw err
+        }
+      }
 
-      if (insertError) throw insertError
-
-      showToast(t('requestHelp.submitSuccess'), 'success')
+      if (insertError) {
+        // Check if error is about missing preferred_contact_methods column
+        if (insertError.message?.includes('preferred_contact_methods') || insertError.message?.includes('schema cache')) {
+          const migrationMessage = 'Database migration required. Please run RUN_THIS_MIGRATION_NOW.sql in Supabase SQL Editor. The request will be saved without contact preferences for now.'
+          console.error('Migration needed:', migrationMessage)
+          // Try inserting without preferred_contact_methods
+          const { error: retryError } = await supabase
+            .from('help_requests')
+            .insert(requestData)
+          if (retryError) throw retryError
+          showToast('Request saved! (Note: Please run the SQL migration to enable contact preferences)', 'success')
+        } else {
+          throw insertError
+        }
+      } else {
+        showToast(t('requestHelp.submitSuccess'), 'success')
+      }
       
       // Navigate to my requests page to see the submitted request
       setTimeout(() => {
