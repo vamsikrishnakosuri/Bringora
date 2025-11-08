@@ -147,29 +147,27 @@ export default function Header() {
             </Button>
           )}
 
-          {/* Profile Avatar/Icon */}
+          {/* Profile Button */}
           {user && (
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => navigate('/profile')}
               aria-label="View profile"
-              className="flex items-center gap-2 min-h-[44px] min-w-[44px] rounded-full hover:bg-white/10 dark:hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-foreground dark:focus:ring-white focus:ring-offset-2 p-1"
+              className="flex items-center gap-2 min-h-[44px] text-foreground dark:text-white hover:text-foreground dark:hover:text-white"
             >
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
                   alt={user.user_metadata?.full_name || user.email || 'Profile'}
-                  className="w-8 h-8 rounded-full object-cover border-2 border-white/20 dark:border-white/10"
+                  className="w-6 h-6 rounded-full object-cover border-2 border-white/20 dark:border-white/10"
                   onError={() => setAvatarUrl(null)}
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-foreground to-muted dark:from-white dark:to-gray-400 flex items-center justify-center border-2 border-white/20 dark:border-white/10">
-                  <User className="w-4 h-4 text-background dark:text-[#0A0A0A]" aria-hidden="true" />
-                </div>
+                <User className="w-4 h-4 text-foreground dark:text-white" aria-hidden="true" />
               )}
-              <span className="hidden lg:inline text-foreground dark:text-white font-medium">
-                {user.user_metadata?.full_name || user.email?.split('@')[0] || 'Profile'}
-              </span>
-            </button>
+              <span className="hidden sm:inline">Profile</span>
+            </Button>
           )}
 
           {/* Sign Out */}
@@ -265,34 +263,17 @@ export default function Header() {
 
             {/* Profile Mobile */}
             {user && (
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => {
                   navigate('/profile')
                   setShowMobileMenu(false)
                 }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 dark:hover:bg-white/10 transition-colors min-h-[44px] text-foreground dark:text-white"
+                className="w-full justify-start min-h-[44px] text-foreground dark:text-white hover:text-foreground dark:hover:text-white"
               >
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt={user.user_metadata?.full_name || user.email || 'Profile'}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-white/20 dark:border-white/10"
-                    onError={() => setAvatarUrl(null)}
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-foreground to-muted dark:from-white dark:to-gray-400 flex items-center justify-center border-2 border-white/20 dark:border-white/10">
-                    <User className="w-5 h-5 text-background dark:text-[#0A0A0A]" />
-                  </div>
-                )}
-                <div className="flex flex-col">
-                  <span className="font-medium text-sm">
-                    {user.user_metadata?.full_name || 'Profile'}
-                  </span>
-                  <span className="text-xs text-muted dark:text-gray-400">
-                    {user.email}
-                  </span>
-                </div>
-              </button>
+                <User className="w-5 h-5 mr-3 text-foreground dark:text-white" />
+                <span>Profile</span>
+              </Button>
             )}
 
             {/* Sign Out Mobile */}
