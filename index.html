@@ -27,7 +27,7 @@
             document.documentElement.classList.remove('light', 'dark');
             document.documentElement.classList.add(theme);
         })();
-        
+
         // Handle OAuth callback redirect before React loads
         // Supabase sometimes redirects to /#access_token=... instead of /auth/callback
         (function () {

@@ -243,24 +243,69 @@ export default function HelperApplicationForm({ onComplete, onCancel }: HelperAp
       // Create masked ID number for display
       const maskedIdNumber = maskIdNumber(cleanedIdNumber, idType)
 
+      // Perform ID verification using AI Parichay API (for Aadhaar)
+      let verificationResult = null
+      if (idType === 'aadhaar' && idPhoto) {
+        try {
+          const { verifyIdWithAPI } = await import('@/lib/idVerification')
+          verificationResult = await verifyIdWithAPI(
+            idType,
+            cleanedIdNumber,
+            idPhoto,
+            fullName
+          )
+        } catch (verificationError) {
+          console.error('Verification error:', verificationError)
+          // Continue with application even if verification fails
+        }
+      }
+
+      // Prepare verification data
+      const verificationData: any = {
+        id_verified: verificationResult?.verified || false,
+        verification_method: verificationResult?.method || 'format_only',
+        verification_confidence: verificationResult?.confidence || null,
+        verification_api_response: verificationResult ? {
+          verified: verificationResult.verified,
+          confidence: verificationResult.confidence,
+          extracted_data: verificationResult.extractedData,
+          error: verificationResult.error,
+        } : null,
+      }
+
+      // If verification successful, update verified_at timestamp
+      if (verificationResult?.verified) {
+        verificationData.verified_at = new Date().toISOString()
+      }
+
       // Save application to database
       const { error: appError } = await supabase
         .from('helper_applications')
         .insert({
           user_id: user?.id,
+          full_name: fullName,
+          phone: phone,
+          email: email || user?.email || null,
           id_type: idType,
           id_number: cleanedIdNumber, // Store full number (encrypted in production)
           id_number_masked: maskedIdNumber,
           id_photo_url: idUrlData.publicUrl,
           selfie_photo_url: selfieUrlData.publicUrl,
-          status: 'pending',
-          id_verified: false, // Will be set to true after API verification
-          verification_method: 'format_only', // Will be updated after API integration
+          status: verificationResult?.verified ? 'pending' : 'pending', // Still pending for admin review
+          ...verificationData,
         })
 
       if (appError) throw appError
 
-      showToast('Application submitted successfully! Verification pending.', 'success')
+      // Show appropriate message based on verification result
+      if (verificationResult?.verified) {
+        showToast('Aadhaar verified successfully! Application submitted.', 'success')
+      } else if (verificationResult?.error) {
+        showToast('Application submitted. Verification pending manual review.', 'info')
+      } else {
+        showToast('Application submitted successfully! Verification pending.', 'success')
+      }
+      
       onComplete()
     } catch (err: any) {
       console.error('Error submitting application:', err)

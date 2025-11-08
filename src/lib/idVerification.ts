@@ -141,8 +141,113 @@ export function getIdTypePlaceholder(idType: IDType): string {
 }
 
 /**
- * Verify ID using Government API (placeholder - to be implemented)
- * This will integrate with AI Parichay API or similar service
+ * Verify Aadhaar using AI Parichay API from ai.nic.in
+ * Reference: https://ai.nic.in/AI/
+ */
+export async function verifyAadhaarWithAPI(
+  aadhaarNumber: string,
+  idPhotoFile: File,
+  userFullName: string
+): Promise<IDVerificationResult> {
+  // Validate Aadhaar format first
+  const formatValidation = validateIdFormat(aadhaarNumber, 'aadhaar')
+  
+  if (!formatValidation.valid) {
+    return {
+      valid: false,
+      verified: false,
+      error: formatValidation.error,
+      method: 'format_only',
+    }
+  }
+
+  try {
+    // Convert image file to base64 for API
+    const base64Image = await fileToBase64(idPhotoFile)
+    
+    // AI Parichay API endpoint (to be configured with actual endpoint)
+    // Note: Actual API endpoint needs to be obtained from ai.nic.in/AI/AIParichay
+    const API_ENDPOINT = import.meta.env.VITE_AI_PARICHAY_API_URL || 'https://ai.nic.in/api/aiparichay/verify'
+    const API_KEY = import.meta.env.VITE_AI_PARICHAY_API_KEY || ''
+
+    // Prepare request payload
+    const payload = {
+      id_type: 'aadhaar',
+      id_number: aadhaarNumber.replace(/\s+/g, ''),
+      id_image: base64Image,
+      user_name: userFullName,
+    }
+
+    // Call AI Parichay API
+    const response = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(API_KEY && { 'Authorization': `Bearer ${API_KEY}` }),
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'API request failed' }))
+      throw new Error(errorData.message || `API error: ${response.status}`)
+    }
+
+    const result = await response.json()
+
+    // Parse API response
+    // Expected response structure (adjust based on actual API):
+    // {
+    //   verified: boolean,
+    //   confidence: number (0-100),
+    //   extracted_data: {
+    //     name: string,
+    //     id_number: string,
+    //     dob: string,
+    //     photo: string (base64)
+    //   },
+    //   match_score: number
+    // }
+
+    const verified = result.verified === true || result.status === 'verified'
+    const confidence = result.confidence || result.match_score || 0
+    const extractedName = result.extracted_data?.name || result.name
+
+    // Verify name match (fuzzy matching)
+    const nameMatch = extractedName && 
+      userFullName.toLowerCase().includes(extractedName.toLowerCase().split(' ')[0]) ||
+      extractedName.toLowerCase().includes(userFullName.toLowerCase().split(' ')[0])
+
+    return {
+      valid: true,
+      verified: verified && nameMatch,
+      confidence: Math.min(100, Math.max(0, confidence)),
+      extractedData: result.extracted_data || {
+        name: extractedName,
+        idNumber: result.extracted_data?.id_number || aadhaarNumber,
+        dob: result.extracted_data?.dob,
+        photo: result.extracted_data?.photo,
+      },
+      method: 'ai_parichay',
+      error: verified && !nameMatch ? 'Name mismatch with ID' : undefined,
+    }
+  } catch (error: any) {
+    console.error('Aadhaar verification API error:', error)
+    
+    // Fallback: Return format validation only if API fails
+    return {
+      valid: true,
+      verified: false,
+      confidence: 0,
+      method: 'format_only',
+      error: error.message || 'Verification API unavailable. Manual review required.',
+    }
+  }
+}
+
+/**
+ * Verify ID using Government API
+ * Supports multiple ID types with appropriate API calls
  */
 export async function verifyIdWithAPI(
   idType: IDType,
@@ -150,9 +255,13 @@ export async function verifyIdWithAPI(
   idPhotoFile: File,
   userFullName: string
 ): Promise<IDVerificationResult> {
-  // TODO: Implement API integration
-  // For now, return format validation only
-  
+  // For Aadhaar, use AI Parichay API
+  if (idType === 'aadhaar') {
+    return await verifyAadhaarWithAPI(idNumber, idPhotoFile, userFullName)
+  }
+
+  // For other ID types, validate format only for now
+  // Can be extended with specific APIs later
   const formatValidation = validateIdFormat(idNumber, idType)
   
   if (!formatValidation.valid) {
@@ -164,24 +273,19 @@ export async function verifyIdWithAPI(
     }
   }
 
-  // Placeholder for API integration
-  // When ready, integrate with:
-  // - AI Parichay API (https://ai.nic.in/AI/AIParichay)
-  // - Veri5Digital API
-  // - Surepass API
-  // - IDfy API
-
+  // Other ID types: format validation only (can add API integration later)
   return {
     valid: true,
-    verified: false, // Will be true after API integration
+    verified: false,
     confidence: 0,
     method: 'format_only',
+    error: `${getIdTypeDisplayName(idType)} verification API not yet integrated. Manual review required.`,
   }
 }
 
 /**
- * Extract data from ID photo using OCR (placeholder)
- * This will use AI Parichay API or similar OCR service
+ * Extract data from ID photo using OCR via AI Parichay API
+ * Reference: https://ai.nic.in/AI/
  */
 export async function extractIdData(idPhotoFile: File, idType: IDType): Promise<{
   success: boolean
@@ -193,16 +297,65 @@ export async function extractIdData(idPhotoFile: File, idType: IDType): Promise<
   }
   error?: string
 }> {
-  // TODO: Implement OCR extraction
-  // AI Parichay API can extract:
-  // - ID card number
-  // - Holder's name
-  // - Date of birth
-  // - Photo
+  try {
+    // Convert image to base64
+    const base64Image = await fileToBase64(idPhotoFile)
+    
+    // AI Parichay OCR endpoint
+    const OCR_ENDPOINT = import.meta.env.VITE_AI_PARICHAY_OCR_URL || 'https://ai.nic.in/api/aiparichay/extract'
+    const API_KEY = import.meta.env.VITE_AI_PARICHAY_API_KEY || ''
 
-  return {
-    success: false,
-    error: 'OCR extraction not yet implemented',
+    const payload = {
+      id_type: idType,
+      image: base64Image,
+    }
+
+    const response = await fetch(OCR_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(API_KEY && { 'Authorization': `Bearer ${API_KEY}` }),
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (!response.ok) {
+      throw new Error(`OCR API error: ${response.status}`)
+    }
+
+    const result = await response.json()
+
+    // Parse extracted data
+    return {
+      success: true,
+      data: {
+        name: result.extracted_data?.name || result.name,
+        idNumber: result.extracted_data?.id_number || result.id_number,
+        dob: result.extracted_data?.dob || result.date_of_birth,
+        photo: result.extracted_data?.photo || result.photo,
+      },
+    }
+  } catch (error: any) {
+    console.error('OCR extraction error:', error)
+    return {
+      success: false,
+      error: error.message || 'OCR extraction failed',
+    }
   }
+}
+
+/**
+ * Helper function to convert File to base64
+ */
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const base64String = (reader.result as string).split(',')[1] // Remove data:image/...;base64, prefix
+      resolve(base64String)
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
 }
 
