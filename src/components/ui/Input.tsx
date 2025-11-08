@@ -44,7 +44,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             // Error state
             hasError
               ? 'border-red-500 dark:border-red-500 focus-visible:ring-red-500'
-              : 'border-white/20 dark:border-white/10 focus:border-white/30 dark:focus:border-white/20',
+              : 'border-gray-300 dark:border-white/10 focus:border-gray-400 dark:focus:border-white/20',
             'text-foreground dark:text-white',
             'focus:bg-white dark:focus:bg-[#1A1A1A]/90',
             'placeholder:text-muted dark:placeholder:text-gray-400',

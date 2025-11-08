@@ -19,10 +19,11 @@ interface LocationPickerProps {
 }
 
 export default function LocationPicker({ onLocationSelect, initialLocation }: LocationPickerProps) {
+  // Default to India (Hyderabad coordinates)
   const [viewState, setViewState] = useState({
-    longitude: initialLocation?.longitude || -122.4,
-    latitude: initialLocation?.latitude || 37.8,
-    zoom: initialLocation ? 14 : 12,
+    longitude: initialLocation?.longitude || 78.4867, // Hyderabad, India
+    latitude: initialLocation?.latitude || 17.3850, // Hyderabad, India
+    zoom: initialLocation ? 14 : 10,
   })
   const [searchQuery, setSearchQuery] = useState(initialLocation?.address || '')
   const [selectedLocation, setSelectedLocation] = useState<{
@@ -30,7 +31,11 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
     latitude: number
     longitude: number
   } | null>(initialLocation || null)
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [isSearching, setIsSearching] = useState(false)
   const mapRef = useRef<MapRef>(null)
+  const searchTimeoutRef = useRef<number | null>(null)
 
   // Update when initialLocation changes
   useEffect(() => {
@@ -65,12 +70,67 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
     }
   }, [onLocationSelect])
 
+  // Debounced search for autocomplete suggestions
+  const handleSearchInput = useCallback(async (query: string) => {
+    if (!query.trim() || query.length < 2) {
+      setSearchResults([])
+      setShowSuggestions(false)
+      return
+    }
+
+    setIsSearching(true)
+    try {
+      // Focus on India by adding proximity and country filter
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&limit=5&proximity=78.4867,17.3850&country=IN`
+      )
+      const data = await response.json()
+      
+      if (data.features && data.features.length > 0) {
+        setSearchResults(data.features)
+        setShowSuggestions(true)
+      } else {
+        setSearchResults([])
+        setShowSuggestions(false)
+      }
+    } catch (error) {
+      console.error('Error searching location:', error)
+      setSearchResults([])
+      setShowSuggestions(false)
+    } finally {
+      setIsSearching(false)
+    }
+  }, [])
+
+  // Handle input change with debouncing
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
+
+    if (searchQuery.length >= 2) {
+      searchTimeoutRef.current = window.setTimeout(() => {
+        handleSearchInput(searchQuery)
+      }, 300) // 300ms debounce
+    } else {
+      setSearchResults([])
+      setShowSuggestions(false)
+    }
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        window.clearTimeout(searchTimeoutRef.current)
+      }
+    }
+  }, [searchQuery, handleSearchInput])
+
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim()) return
     
     try {
+      // Focus on India
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${MAPBOX_TOKEN}&limit=1`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${MAPBOX_TOKEN}&limit=1&proximity=78.4867,17.3850&country=IN`
       )
       const data = await response.json()
       
@@ -82,6 +142,8 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
         const location = { address, latitude: lat, longitude: lng }
         setSelectedLocation(location)
         onLocationSelect(location)
+        setSearchQuery(address)
+        setShowSuggestions(false)
         
         setViewState({
           longitude: lng,
@@ -93,6 +155,23 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
       console.error('Error searching location:', error)
     }
   }, [searchQuery, onLocationSelect])
+
+  const handleSelectSuggestion = useCallback((feature: any) => {
+    const [lng, lat] = feature.center
+    const address = feature.place_name
+    
+    const location = { address, latitude: lat, longitude: lng }
+    setSelectedLocation(location)
+    onLocationSelect(location)
+    setSearchQuery(address)
+    setShowSuggestions(false)
+    
+    setViewState({
+      longitude: lng,
+      latitude: lat,
+      zoom: 14,
+    })
+  }, [onLocationSelect])
 
   const handleUseCurrentLocation = useCallback(() => {
     if (navigator.geolocation) {
@@ -130,20 +209,66 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
     <div className="space-y-4">
       <div className="flex gap-2">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted dark:text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted dark:text-gray-400 z-10" />
           <Input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            placeholder="Search for location..."
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch()
+                setShowSuggestions(false)
+              }
+            }}
+            onFocus={() => {
+              if (searchQuery.length >= 2 && searchResults.length > 0) {
+                setShowSuggestions(true)
+              }
+            }}
+            onBlur={() => {
+              // Delay to allow clicking on suggestions
+              setTimeout(() => setShowSuggestions(false), 200)
+            }}
+            placeholder="Search for location (e.g., Visakhapatnam, Mumbai, Delhi)..."
             className="pl-10"
           />
+          
+          {/* Autocomplete Suggestions Dropdown */}
+          {showSuggestions && searchResults.length > 0 && (
+            <div className="absolute z-50 w-full mt-1 bg-white dark:bg-[#1A1A1A] border border-gray-300 dark:border-white/10 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              {searchResults.map((feature, index) => (
+                <button
+                  key={feature.id || index}
+                  type="button"
+                  onClick={() => handleSelectSuggestion(feature)}
+                  className="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors border-b border-gray-100 dark:border-white/5 last:border-b-0"
+                >
+                  <div className="flex items-start gap-3">
+                    <MapPin className="w-4 h-4 text-muted dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground dark:text-white truncate">
+                        {feature.text}
+                      </p>
+                      <p className="text-xs text-muted dark:text-gray-400 truncate">
+                        {feature.place_name}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+          
+          {isSearching && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              <div className="w-4 h-4 border-2 border-muted dark:border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          )}
         </div>
         <Button type="button" onClick={handleSearch} variant="outline">
           Search
         </Button>
-        <Button type="button" onClick={handleUseCurrentLocation} variant="outline">
+        <Button type="button" onClick={handleUseCurrentLocation} variant="outline" aria-label="Use current location">
           <Navigation className="w-4 h-4" />
         </Button>
       </div>

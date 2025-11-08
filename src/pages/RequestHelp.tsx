@@ -337,7 +337,7 @@ export default function RequestHelp() {
                     className={`flex h-10 w-full rounded-lg border bg-white/80 dark:bg-[#1A1A1A]/80 px-3 py-2 text-sm text-foreground dark:text-white focus:outline-none focus:ring-2 focus:ring-foreground dark:focus:ring-white/20 transition-all ${
                       fieldErrors.category
                         ? 'border-red-500 dark:border-red-500 focus:ring-red-500'
-                        : 'border-white/20 dark:border-white/10'
+                        : 'border-gray-300 dark:border-white/10 focus:border-gray-400 dark:focus:border-white/20'
                     }`}
                     required
                   >
@@ -406,7 +406,7 @@ export default function RequestHelp() {
                     <select
                       value={durationUnit}
                       onChange={(e) => setDurationUnit(e.target.value)}
-                      className="flex h-10 w-full rounded-lg border border-white/20 dark:border-white/10 bg-white/80 dark:bg-[#1A1A1A]/80 px-3 py-2 text-sm text-foreground dark:text-white focus:outline-none focus:ring-2 focus:ring-foreground dark:focus:ring-white/20"
+                      className="flex h-10 w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white/80 dark:bg-[#1A1A1A]/80 px-3 py-2 text-sm text-foreground dark:text-white focus:outline-none focus:ring-2 focus:ring-foreground dark:focus:ring-white/20 focus:border-gray-400 dark:focus:border-white/20 transition-all"
                     >
                       <option value="hours">Hours</option>
                       <option value="minutes">Minutes</option>
