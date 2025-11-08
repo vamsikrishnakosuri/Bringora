@@ -1,4 +1,4 @@
-import { Globe, LogOut, FileText, Menu, X } from 'lucide-react'
+import { Globe, LogOut, FileText, Menu, X, User } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LANGUAGES, LanguageCode } from '@/lib/constants'
@@ -98,6 +98,20 @@ export default function Header() {
             </Button>
           )}
 
+          {/* Profile */}
+          {user && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/profile')}
+              aria-label="View profile"
+              className="flex items-center gap-2 min-h-[44px] text-foreground dark:text-white hover:text-foreground dark:hover:text-white"
+            >
+              <User className="w-4 h-4 text-foreground dark:text-white" aria-hidden="true" />
+              <span className="hidden lg:inline">Profile</span>
+            </Button>
+          )}
+
           {/* Sign Out */}
           {user && (
             <Button
@@ -186,6 +200,21 @@ export default function Header() {
               >
                 <FileText className="w-5 h-5 mr-3 text-foreground dark:text-white" />
                 <span>My Requests</span>
+              </Button>
+            )}
+
+            {/* Profile Mobile */}
+            {user && (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  navigate('/profile')
+                  setShowMobileMenu(false)
+                }}
+                className="w-full justify-start min-h-[44px] text-foreground dark:text-white hover:text-foreground dark:hover:text-white"
+              >
+                <User className="w-5 h-5 mr-3 text-foreground dark:text-white" />
+                <span>Profile</span>
               </Button>
             )}
 
