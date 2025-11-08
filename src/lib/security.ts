@@ -207,8 +207,8 @@ export function validateCoordinates(lat: number, lng: number): boolean {
 export function getCSPHeader(): string {
   return [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://*.mapbox.com",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://*.mapbox.com https://vercel.live",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.mapbox.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https: blob:",
     "connect-src 'self' https://*.supabase.co https://*.mapbox.com wss://*.supabase.co",
