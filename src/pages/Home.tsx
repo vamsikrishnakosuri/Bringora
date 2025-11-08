@@ -29,19 +29,19 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] relative overflow-hidden">
       <AnimatedBackground />
-      <div className="container mx-auto px-4 py-16 relative z-10">
-        <div className="text-center mb-16 animate-fade-in">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-slide-up tracking-tight">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 relative z-10">
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16 animate-fade-in">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 animate-slide-up tracking-tight px-2">
             <span className="gradient-text dark:text-foreground dark:bg-gradient-to-r dark:from-white dark:via-gray-200 dark:to-white dark:bg-clip-text dark:text-transparent">
               {t('app.tagline')}
             </span>
           </h1>
-          <p className="text-xl text-muted dark:text-muted/90 max-w-2xl mx-auto animate-slide-up font-light leading-relaxed" style={{ animationDelay: '0.2s' }}>
+          <p className="text-base sm:text-lg lg:text-xl text-muted dark:text-muted/90 max-w-2xl mx-auto animate-slide-up font-light leading-relaxed px-4" style={{ animationDelay: '0.2s' }}>
             {t('app.subtitle')}
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-5xl mx-auto px-2">
           <FeatureCard
             icon={Phone}
             title={t('card.requestHelp.title')}

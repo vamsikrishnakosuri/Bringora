@@ -310,9 +310,9 @@ export default function RequestHelp() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-6 sm:py-8 lg:py-12 px-3 sm:px-4 lg:px-6">
       <div className="container mx-auto max-w-3xl">
-        <h1 className="text-4xl font-bold mb-8 text-center animate-fade-in dark:text-white tracking-tight">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 sm:mb-8 text-center animate-fade-in dark:text-white tracking-tight px-2">
           {t('card.requestHelp.title')}
         </h1>
 
@@ -366,7 +366,7 @@ export default function RequestHelp() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
                     type="date"
                     label="Date"
@@ -391,7 +391,7 @@ export default function RequestHelp() {
                   />
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <div className="flex-1">
                     <Input
                       type="number"
@@ -408,12 +408,12 @@ export default function RequestHelp() {
                       required
                     />
                   </div>
-                  <div className="w-32">
+                  <div className="w-full sm:w-32">
                     <label className="block text-sm font-medium mb-2 dark:text-white">Unit</label>
                     <select
                       value={durationUnit}
                       onChange={(e) => setDurationUnit(e.target.value)}
-                      className="flex h-10 w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white/80 dark:bg-[#1A1A1A]/80 px-3 py-2 text-sm text-foreground dark:text-white focus:outline-none focus:ring-2 focus:ring-foreground dark:focus:ring-white/20 focus:border-gray-400 dark:focus:border-white/20 transition-all"
+                      className="flex h-10 w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white/80 dark:bg-[#1A1A1A]/80 px-3 py-2 text-sm text-foreground dark:text-white focus:outline-none focus:ring-2 focus:ring-foreground dark:focus:ring-white/20 focus:border-gray-400 dark:focus:border-white/20 transition-all min-h-[44px]"
                     >
                       <option value="hours">Hours</option>
                       <option value="minutes">Minutes</option>

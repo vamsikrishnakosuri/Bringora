@@ -208,8 +208,8 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
   }, [onLocationSelect])
 
   return (
-    <div className="space-y-4">
-      <div className="flex gap-2">
+    <div className="space-y-3 sm:space-y-4">
+      <div className="flex flex-col sm:flex-row gap-2">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted dark:text-gray-400 z-10" />
           <Input
@@ -267,16 +267,17 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
             </div>
           )}
         </div>
-        <Button type="button" onClick={handleSearch} variant="outline">
-          Search
+        <Button type="button" onClick={handleSearch} variant="outline" className="min-h-[44px] sm:min-h-[40px]">
+          <span className="hidden sm:inline">Search</span>
+          <span className="sm:hidden">🔍</span>
         </Button>
-        <Button type="button" onClick={handleUseCurrentLocation} variant="outline" aria-label="Use current location">
-          <Navigation className="w-4 h-4" />
+        <Button type="button" onClick={handleUseCurrentLocation} variant="outline" aria-label="Use current location" className="min-h-[44px] sm:min-h-[40px] min-w-[44px] sm:min-w-[40px]">
+          <Navigation className="w-4 h-4 sm:w-5 sm:h-5" />
         </Button>
       </div>
 
       <div 
-        className="relative h-64 rounded-lg overflow-hidden border border-white/20 dark:border-white/10"
+        className="relative h-48 sm:h-56 md:h-64 rounded-lg overflow-hidden border border-white/20 dark:border-white/10"
         onClick={() => setShowSuggestions(false)} // Hide suggestions when clicking on map
       >
         <Map

@@ -284,14 +284,14 @@ export default function BrowseRequests() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-6 sm:py-8 lg:py-12 px-3 sm:px-4 lg:px-6">
       <div className="container mx-auto max-w-7xl">
         {/* Premium Header */}
-        <div className="mb-12 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 tracking-tight dark:text-white">
+        <div className="mb-6 sm:mb-8 lg:mb-12 text-center px-2">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 tracking-tight dark:text-white">
             {t('browseRequests.title')}
           </h1>
-          <p className="text-xl text-muted dark:text-gray-400 max-w-2xl mx-auto font-light">
+          <p className="text-base sm:text-lg lg:text-xl text-muted dark:text-gray-400 max-w-2xl mx-auto font-light px-4">
             {t('browseRequests.subtitle')}
           </p>
         </div>
@@ -316,9 +316,9 @@ export default function BrowseRequests() {
                   key={request.id}
                   className="overflow-hidden backdrop-blur-xl bg-white/90 dark:bg-[#1A1A1A]/90 border-white/30 dark:border-white/20 hover:shadow-2xl hover:shadow-black/10 dark:hover:shadow-white/5 transition-all duration-500 hover:scale-[1.01] group"
                 >
-                  <div className="flex flex-col md:flex-row">
+                  <div className="flex flex-col lg:flex-row">
                     {/* Premium Image Section */}
-                    <div className="relative w-full md:w-80 h-64 md:h-auto overflow-hidden">
+                    <div className="relative w-full lg:w-80 h-48 sm:h-64 lg:h-auto overflow-hidden">
                       <img
                         src={imageUrl}
                         alt={category}
@@ -344,15 +344,15 @@ export default function BrowseRequests() {
                     </div>
 
                     {/* Premium Content Section */}
-                    <div className="flex-1 p-6 md:p-8 flex flex-col justify-between">
+                    <div className="flex-1 p-4 sm:p-6 lg:p-8 flex flex-col justify-between">
                       <div>
                         {/* Service Title */}
-                        <h3 className="text-2xl font-bold mb-4 dark:text-white tracking-tight group-hover:text-foreground dark:group-hover:text-white transition-colors">
+                        <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 dark:text-white tracking-tight group-hover:text-foreground dark:group-hover:text-white transition-colors">
                           {request.title}
                         </h3>
 
                         {/* Details Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
                           {/* Time */}
                           {request.time_needed && (
                             <div className="flex items-center gap-3 text-sm">
@@ -488,7 +488,7 @@ export default function BrowseRequests() {
                       </div>
 
                       {/* Premium Action Buttons */}
-                      <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t border-white/20 dark:border-white/10">
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-white/20 dark:border-white/10">
                         <Button
                           onClick={() => handleContact(request)}
                           className="flex-1 flex items-center justify-center gap-2 backdrop-blur-sm bg-foreground dark:bg-white text-background dark:text-foreground hover:opacity-90 transition-all duration-300 group/btn"

@@ -114,11 +114,11 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] px-3 sm:px-4 py-6 sm:py-8">
       <Card className="max-w-md w-full backdrop-blur-xl bg-white/80 dark:bg-[#1A1A1A]/80 border-white/20 dark:border-white/10">
         {/* Uber-style unified header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2 tracking-tight dark:text-white">Welcome</h1>
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-2 tracking-tight dark:text-white">Welcome</h1>
           <p className="text-muted dark:text-gray-400">
             {isResetPassword 
               ? 'Reset your password' 
@@ -186,7 +186,7 @@ export default function Auth() {
 
           <Button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 h-12 text-base font-semibold"
+            className="w-full flex items-center justify-center gap-2 h-12 sm:h-14 text-base font-semibold min-h-[48px]"
             disabled={loading}
           >
             {loading ? (
@@ -217,7 +217,7 @@ export default function Auth() {
 
             <Button
               variant="outline"
-              className="w-full h-12 text-base font-semibold"
+              className="w-full h-12 sm:h-14 text-base font-semibold min-h-[48px]"
               onClick={handleGoogleSignIn}
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">

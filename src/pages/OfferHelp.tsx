@@ -202,9 +202,9 @@ export default function OfferHelp() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-6 sm:py-8 lg:py-12 px-3 sm:px-4 lg:px-6">
       <div className="container mx-auto max-w-6xl">
-        <h1 className="text-4xl font-bold mb-8 text-center dark:text-white tracking-tight">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 sm:mb-8 text-center dark:text-white tracking-tight px-2">
           {t('card.offerHelp.title')}
         </h1>
 
@@ -222,7 +222,7 @@ export default function OfferHelp() {
             </p>
           </Card>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {requests.map((request: any, index) => (
               <Card 
                 key={request.id} 

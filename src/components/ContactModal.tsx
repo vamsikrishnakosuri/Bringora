@@ -43,11 +43,11 @@ export default function ContactModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
       onClick={onClose}
     >
       <Card
-        className="w-full max-w-md mx-4 backdrop-blur-xl bg-white/90 dark:bg-[#1A1A1A]/90 border-white/30 dark:border-white/20"
+        className="w-full max-w-md backdrop-blur-xl bg-white/90 dark:bg-[#1A1A1A]/90 border-white/30 dark:border-white/20"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
@@ -67,9 +67,9 @@ export default function ContactModal({
           {preferredMethods.includes('call') && (
             <Button
               onClick={handleCall}
-              className="w-full flex items-center justify-center gap-3 h-12 text-base"
+              className="w-full flex items-center justify-center gap-3 h-12 sm:h-14 text-base min-h-[48px]"
             >
-              <Phone className="w-5 h-5" />
+              <Phone className="w-5 h-5 sm:w-6 sm:h-6" />
               <span>Call</span>
             </Button>
           )}
@@ -78,10 +78,10 @@ export default function ContactModal({
             <Button
               onClick={handleMessage}
               variant="outline"
-              className="w-full flex items-center justify-center gap-3 h-12 text-base"
+              className="w-full flex items-center justify-center gap-3 h-12 sm:h-14 text-base min-h-[48px]"
             >
-              <MessageSquare className="w-5 h-5" />
-              <span>Message (WhatsApp/SMS)</span>
+              <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
+              <span className="text-sm sm:text-base">Message (WhatsApp/SMS)</span>
             </Button>
           )}
 
@@ -89,9 +89,9 @@ export default function ContactModal({
             <Button
               onClick={handleEmail}
               variant="outline"
-              className="w-full flex items-center justify-center gap-3 h-12 text-base"
+              className="w-full flex items-center justify-center gap-3 h-12 sm:h-14 text-base min-h-[48px]"
             >
-              <Mail className="w-5 h-5" />
+              <Mail className="w-5 h-5 sm:w-6 sm:h-6" />
               <span>Email</span>
             </Button>
           )}

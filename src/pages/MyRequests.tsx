@@ -106,10 +106,10 @@ export default function MyRequests() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-12 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-6 sm:py-8 lg:py-12 px-3 sm:px-4 lg:px-6">
         <div className="container mx-auto max-w-6xl">
-          <Skeleton variant="text" height={48} className="mb-8 max-w-md mx-auto" />
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Skeleton variant="text" height={48} className="mb-6 sm:mb-8 max-w-md mx-auto" />
+          <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {[1, 2, 3].map((i) => (
               <Card key={i} className="overflow-hidden">
                 <Skeleton variant="rectangular" height={192} className="mb-4" />
@@ -125,16 +125,16 @@ export default function MyRequests() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-6 sm:py-8 lg:py-12 px-3 sm:px-4 lg:px-6">
       <div className="container mx-auto max-w-6xl">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold dark:text-white tracking-tight">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold dark:text-white tracking-tight">
             {t('myRequests.title')}
           </h1>
           <Button
             variant="outline"
             onClick={() => navigate('/')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full sm:w-auto min-h-[44px]"
           >
             {t('myRequests.goHome')}
           </Button>
@@ -148,8 +148,8 @@ export default function MyRequests() {
             actionLabel={t('myRequests.createRequest')}
             onAction={() => navigate('/request-help')}
           />
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                ) : (
+                  <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {requests.map((request) => {
               const category = getCategoryFromTitle(request.title, request.description)
               const imageUrl = categoryImages[category] || categoryImages.other

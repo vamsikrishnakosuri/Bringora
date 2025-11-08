@@ -28,7 +28,7 @@ export default function FeatureCard({
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none"></div>
             <Icon className="w-8 h-8 text-background dark:text-white relative z-10" />
           </div>
-          <h3 className="text-2xl font-bold mb-3 group-hover:text-foreground dark:text-white dark:group-hover:text-white transition-colors duration-300 tracking-tight">
+          <h3 className="text-xl sm:text-2xl font-bold mb-3 group-hover:text-foreground dark:text-white dark:group-hover:text-white transition-colors duration-300 tracking-tight">
             {title}
           </h3>
           <p className="text-muted dark:text-gray-300 text-sm leading-relaxed group-hover:text-foreground/80 dark:group-hover:text-gray-200 transition-colors duration-300 font-normal">
@@ -53,7 +53,7 @@ export default function FeatureCard({
               <Button
                 onClick={onClick}
                 aria-label={`${buttonText} - ${title}`}
-                className="w-full group-hover:shadow-xl group-hover:shadow-foreground/20 dark:group-hover:shadow-white/10 transition-all duration-300 relative overflow-hidden backdrop-blur-sm border border-white/20 dark:border-white/10"
+                className="w-full group-hover:shadow-xl group-hover:shadow-foreground/20 dark:group-hover:shadow-white/10 transition-all duration-300 relative overflow-hidden backdrop-blur-sm border border-white/20 dark:border-white/10 min-h-[48px] sm:min-h-[44px]"
               >
                 <span className="relative z-10">{buttonText}</span>
                 {/* Elegant shine effect on hover */}

@@ -38,11 +38,22 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.01em;
+    /* Prevent text size adjustment on iOS */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
   
   h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
     letter-spacing: -0.02em;
+  }
+
+  /* Ensure touch targets are at least 44x44px on mobile */
+  @media (max-width: 640px) {
+    button, a, input[type="button"], input[type="submit"], select {
+      min-height: 44px;
+      min-width: 44px;
+    }
   }
 }
 
