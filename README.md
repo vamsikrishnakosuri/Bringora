@@ -1,4 +1,4 @@
-# Bringora
+# Bringora - Community Help Platform
 
 A community-based platform connecting people who need help with daily tasks to nearby helpers.
 
