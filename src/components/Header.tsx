@@ -156,17 +156,8 @@ export default function Header() {
               aria-label="View profile"
               className="flex items-center gap-2 min-h-[44px] text-foreground dark:text-white hover:text-foreground dark:hover:text-white"
             >
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={user.user_metadata?.full_name || user.email || 'Profile'}
-                  className="w-6 h-6 rounded-full object-cover border-2 border-white/20 dark:border-white/10"
-                  onError={() => setAvatarUrl(null)}
-                />
-              ) : (
-                <User className="w-4 h-4 text-foreground dark:text-white" aria-hidden="true" />
-              )}
-              <span className="hidden sm:inline">Profile</span>
+              <User className="w-4 h-4 text-foreground dark:text-white" aria-hidden="true" />
+              <span className="hidden lg:inline">Profile</span>
             </Button>
           )}
 
