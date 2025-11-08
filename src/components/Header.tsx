@@ -157,7 +157,7 @@ export default function Header() {
               className="flex items-center gap-2 min-h-[44px] text-foreground dark:text-white hover:text-foreground dark:hover:text-white"
             >
               <User className="w-4 h-4 text-foreground dark:text-white" aria-hidden="true" />
-              <span className="hidden lg:inline">Profile</span>
+              <span className="hidden sm:inline">Profile</span>
             </Button>
           )}
 

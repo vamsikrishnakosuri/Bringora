@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import Map, { Marker, MapRef } from 'react-map-gl'
 import { MAPBOX_TOKEN } from '@/lib/constants'
-import { MapPin, Search, Navigation } from 'lucide-react'
+import { MapPin, Search, Navigation, AlertCircle } from 'lucide-react'
 import Input from './ui/Input'
 import Button from './ui/Button'
 
@@ -276,35 +276,55 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
         </Button>
       </div>
 
+      <div className="space-y-2">
+        <p className="text-xs text-muted dark:text-gray-400 flex items-center gap-1">
+          <MapPin className="w-3 h-3" />
+          Click on the map to pin your location, or use search above
+        </p>
+      </div>
       <div 
         className="relative h-48 sm:h-56 md:h-64 rounded-lg overflow-hidden border border-white/20 dark:border-white/10"
         onClick={() => setShowSuggestions(false)} // Hide suggestions when clicking on map
         style={{ minHeight: '192px' }} // Ensure minimum height on mobile
       >
-        <Map
-          {...viewState}
-          ref={mapRef}
-          onMove={(evt) => setViewState(evt.viewState)}
-          onClick={(e) => {
-            setShowSuggestions(false) // Hide suggestions when clicking on map
-            handleMapClick(e)
-          }}
-          mapboxAccessToken={MAPBOX_TOKEN}
-          style={{ width: '100%', height: '100%', minHeight: '192px' }}
-          mapStyle="mapbox://styles/mapbox/streets-v12"
-          reuseMaps={true}
-          antialias={true}
-        >
-          {selectedLocation && (
-            <Marker
-              longitude={selectedLocation.longitude}
-              latitude={selectedLocation.latitude}
-              anchor="bottom"
-            >
-              <MapPin className="w-8 h-8 text-red-500" />
-            </Marker>
-          )}
-        </Map>
+        {!MAPBOX_TOKEN ? (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-muted/50 dark:bg-gray-800/50 p-4">
+            <AlertCircle className="w-12 h-12 text-yellow-500 mb-4" />
+            <p className="text-sm font-medium text-foreground dark:text-white text-center mb-2">
+              Mapbox token not configured
+            </p>
+            <p className="text-xs text-muted dark:text-gray-400 text-center">
+              Please add VITE_MAPBOX_TOKEN to your environment variables
+            </p>
+          </div>
+        ) : (
+          <Map
+            {...viewState}
+            ref={mapRef}
+            onMove={(evt) => setViewState(evt.viewState)}
+            onClick={(e) => {
+              setShowSuggestions(false) // Hide suggestions when clicking on map
+              handleMapClick(e)
+            }}
+            mapboxAccessToken={MAPBOX_TOKEN}
+            style={{ width: '100%', height: '100%', minHeight: '192px' }}
+            mapStyle="mapbox://styles/mapbox/streets-v12"
+            reuseMaps={true}
+            antialias={true}
+            interactive={true}
+            cursor="crosshair"
+          >
+            {selectedLocation && (
+              <Marker
+                longitude={selectedLocation.longitude}
+                latitude={selectedLocation.latitude}
+                anchor="bottom"
+              >
+                <MapPin className="w-8 h-8 text-red-500" />
+              </Marker>
+            )}
+          </Map>
+        )}
       </div>
 
       {selectedLocation && (
