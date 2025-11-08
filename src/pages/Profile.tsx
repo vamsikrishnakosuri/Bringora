@@ -227,7 +227,7 @@ export default function Profile() {
                     <User className="w-10 h-10 text-background dark:text-[#0A0A0A]" />
                   </div>
                 )}
-                {user.user_metadata?.provider === 'google' && (
+                {user?.user_metadata?.provider === 'google' && (
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white dark:border-[#1A1A1A] flex items-center justify-center">
                     <span className="text-white text-xs font-bold">G</span>
                   </div>
@@ -238,7 +238,7 @@ export default function Profile() {
                   {fullName || 'Your Profile'}
                 </h1>
                 <p className="text-muted dark:text-gray-400 text-sm">
-                  {email || user.email}
+                  {email || user?.email || ''}
                 </p>
               </div>
             </div>
