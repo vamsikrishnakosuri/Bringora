@@ -14,6 +14,7 @@ import Onboarding from './pages/Onboarding'
 import AdminDashboard from './pages/AdminDashboard'
 import ProfileCheck from './components/ProfileCheck'
 import { ToastProvider } from './components/ui/ToastContainer'
+import ErrorBoundary from './components/ErrorBoundary'
 import { useEffect } from 'react'
 
 function AppContent() {
@@ -53,17 +54,19 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <LanguageProvider>
-        <AuthProvider>
-          <ToastProvider>
-            <BrowserRouter>
-              <AppContent />
-            </BrowserRouter>
-          </ToastProvider>
-        </AuthProvider>
-      </LanguageProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <ToastProvider>
+              <BrowserRouter>
+                <AppContent />
+              </BrowserRouter>
+            </ToastProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   )
 }
 
