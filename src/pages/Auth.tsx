@@ -6,6 +6,8 @@ import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Card from '@/components/ui/Card'
 import { Mail, Lock, ArrowRight, LogIn } from 'lucide-react'
+import { authSchema, emailSchema, passwordSchema } from '@/lib/validation'
+import { sanitizeInput, validateEmail } from '@/lib/security'
 
 export default function Auth() {
   const [searchParams] = useSearchParams()
@@ -21,6 +23,7 @@ export default function Auth() {
   const [loading, setLoading] = useState(false)
   const [resetSent, setResetSent] = useState(false)
   const [signUpSuccess, setSignUpSuccess] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({})
 
   const redirect = searchParams.get('redirect') || '/'
 
@@ -33,25 +36,66 @@ export default function Auth() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setFieldErrors({})
     setLoading(true)
+
+    // Sanitize inputs
+    const sanitizedEmail = sanitizeInput(email.trim())
+    const sanitizedPassword = password.trim()
+
+    // Validate email
+    try {
+      emailSchema.parse(sanitizedEmail)
+    } catch (err: any) {
+      setFieldErrors({ email: err.errors?.[0]?.message || 'Invalid email' })
+      setLoading(false)
+      return
+    }
+
+    // Validate password (if not password reset)
+    if (!isResetPassword) {
+      try {
+        if (isSignUp) {
+          passwordSchema.parse(sanitizedPassword)
+        } else {
+          // For sign-in, password is required but less strict
+          if (!sanitizedPassword || sanitizedPassword.length < 1) {
+            setFieldErrors({ password: 'Password is required' })
+            setLoading(false)
+            return
+          }
+        }
+      } catch (err: any) {
+        setFieldErrors({ password: err.errors?.[0]?.message || 'Invalid password' })
+        setLoading(false)
+        return
+      }
+    }
+
+    // Additional security check
+    if (!validateEmail(sanitizedEmail)) {
+      setFieldErrors({ email: 'Please enter a valid email address' })
+      setLoading(false)
+      return
+    }
 
     try {
       if (isResetPassword) {
-        const { error } = await resetPassword(email)
+        const { error } = await resetPassword(sanitizedEmail)
         if (error) {
           setError(error.message)
         } else {
           setResetSent(true)
         }
       } else if (isSignUp) {
-        const { error } = await signUp(email, password)
+        const { error } = await signUp(sanitizedEmail, sanitizedPassword)
         if (error) {
           setError(error.message)
         } else {
           setSignUpSuccess(true)
         }
       } else {
-        const { error } = await signIn(email, password)
+        const { error } = await signIn(sanitizedEmail, sanitizedPassword)
         if (error) {
           setError(error.message)
         }
@@ -144,9 +188,13 @@ export default function Auth() {
               <Input
                 type="email"
                 value={email}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setEmail(e.target.value)
+                  if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: undefined })
+                }}
                 placeholder="Enter your email"
                 className="pl-10"
+                error={fieldErrors.email}
                 required
                 autoFocus
               />
@@ -158,17 +206,26 @@ export default function Auth() {
               <label className="block text-sm font-medium mb-2 dark:text-white">
                 {t('auth.password')}
               </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted dark:text-gray-400" />
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="pl-10"
-                  required
-                />
-              </div>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted dark:text-gray-400" />
+              <Input
+                type="password"
+                value={password}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setPassword(e.target.value)
+                  if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: undefined })
+                }}
+                placeholder={isSignUp ? "At least 8 characters with uppercase, lowercase, and number" : "Enter your password"}
+                className="pl-10"
+                error={fieldErrors.password}
+                required
+              />
+              {isSignUp && (
+                <p className="text-xs text-muted dark:text-gray-400 mt-1">
+                  Password must be at least 8 characters with uppercase, lowercase, and number
+                </p>
+              )}
+            </div>
             </div>
           )}
 

@@ -8,6 +8,8 @@ import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import LocationPicker from '@/components/LocationPicker'
 import { User, Phone, MapPin, ArrowRight, CheckCircle } from 'lucide-react'
+import { onboardingSchema, nameSchema, phoneSchema, locationSchema } from '@/lib/validation'
+import { sanitizeInput, validatePhoneNumber, validateCoordinates } from '@/lib/security'
 
 export default function Onboarding() {
   const navigate = useNavigate()
@@ -20,6 +22,7 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [step, setStep] = useState<'info' | 'location' | 'complete'>('info')
+  const [fieldErrors, setFieldErrors] = useState<{ fullName?: string; phone?: string; location?: string }>({})
 
   if (!user) {
     navigate('/auth')
@@ -29,20 +32,30 @@ export default function Onboarding() {
   const handleInfoSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setFieldErrors({})
 
-    if (!fullName.trim()) {
-      setError('Please enter your full name')
+    // Sanitize inputs
+    const sanitizedName = sanitizeInput(fullName.trim())
+    const sanitizedPhone = phone.trim()
+
+    // Validate name
+    try {
+      nameSchema.parse(sanitizedName)
+    } catch (err: any) {
+      setFieldErrors({ fullName: err.errors?.[0]?.message || 'Invalid name' })
       return
     }
 
-    if (!phone.trim()) {
-      setError('Please enter your phone number')
-      return
-    }
-
-    const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/
-    if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
-      setError('Please enter a valid phone number')
+    // Validate phone
+    try {
+      phoneSchema.parse(sanitizedPhone)
+      const phoneValidation = validatePhoneNumber(sanitizedPhone)
+      if (!phoneValidation.valid) {
+        setFieldErrors({ phone: 'Please enter a valid phone number (10-13 digits)' })
+        return
+      }
+    } catch (err: any) {
+      setFieldErrors({ phone: err.errors?.[0]?.message || 'Invalid phone number' })
       return
     }
 
@@ -50,8 +63,25 @@ export default function Onboarding() {
   }
 
   const handleLocationSubmit = async () => {
+    setError('')
+    setFieldErrors({})
+
     if (!location) {
-      setError('Please select your location')
+      setFieldErrors({ location: 'Please select your location' })
+      return
+    }
+
+    // Validate location coordinates
+    if (!validateCoordinates(location.latitude, location.longitude)) {
+      setFieldErrors({ location: 'Invalid location coordinates' })
+      return
+    }
+
+    // Validate location schema
+    try {
+      locationSchema.parse(location)
+    } catch (err: any) {
+      setFieldErrors({ location: err.errors?.[0]?.message || 'Invalid location' })
       return
     }
 
@@ -59,14 +89,19 @@ export default function Onboarding() {
     setError('')
 
     try {
+      // Sanitize location address
+      const sanitizedAddress = sanitizeInput(location.address)
+      const sanitizedName = sanitizeInput(fullName.trim())
+      const sanitizedPhone = phone.trim()
+
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
           email: user.email,
-          full_name: fullName,
-          phone: phone,
-          location: location.address,
+          full_name: sanitizedName,
+          phone: sanitizedPhone,
+          location: sanitizedAddress,
           latitude: location.latitude,
           longitude: location.longitude,
           profile_completed: true,
@@ -160,9 +195,13 @@ export default function Onboarding() {
                 <Input
                   type="text"
                   value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
+                  onChange={(e) => {
+                    setFullName(e.target.value)
+                    if (fieldErrors.fullName) setFieldErrors({ ...fieldErrors, fullName: undefined })
+                  }}
                   placeholder="Enter your full name"
                   className="pl-10"
+                  error={fieldErrors.fullName}
                   required
                 />
               </div>
@@ -177,9 +216,13 @@ export default function Onboarding() {
                 <Input
                   type="tel"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Enter your phone number"
+                  onChange={(e) => {
+                    setPhone(e.target.value)
+                    if (fieldErrors.phone) setFieldErrors({ ...fieldErrors, phone: undefined })
+                  }}
+                  placeholder="Enter your phone number (10-13 digits)"
                   className="pl-10"
+                  error={fieldErrors.phone}
                   required
                 />
               </div>
@@ -202,6 +245,11 @@ export default function Onboarding() {
               <p className="text-sm text-muted dark:text-gray-400 mb-4">
                 Select your location on the map. This helps us show you nearby help requests.
               </p>
+              {fieldErrors.location && (
+                <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 text-sm">
+                  {fieldErrors.location}
+                </div>
+              )}
               <LocationPicker onLocationSelect={handleLocationSelect} />
               {location && (
                 <div className="mt-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-2">

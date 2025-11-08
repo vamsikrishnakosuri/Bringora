@@ -9,6 +9,19 @@ import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import LocationPicker from '@/components/LocationPicker'
 import { FileText, Phone, Calendar, Clock, DollarSign, MapPin, User, ShoppingBag, MessageSquare, Mail } from 'lucide-react'
+import { 
+  categorySchema, 
+  dateSchema, 
+  timeSchema, 
+  durationSchema, 
+  nameSchema, 
+  phoneSchema, 
+  locationSchema, 
+  amountSchema, 
+  contactMethodsSchema,
+  textFieldSchema 
+} from '@/lib/validation'
+import { sanitizeInput, validatePhoneNumber, validateCoordinates } from '@/lib/security'
 
 interface RequestSummary {
   category: string
@@ -107,14 +120,128 @@ export default function RequestHelp() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setFieldErrors({})
 
-    if (!location) {
-      setError('Please select a location on the map')
-      return
+    // Validate all fields
+    const errors: Record<string, string> = {}
+
+    // Category
+    try {
+      categorySchema.parse(category)
+    } catch (err: any) {
+      errors.category = err.errors?.[0]?.message || 'Please select a category'
     }
 
-    if (preferredContactMethods.length === 0) {
-      setError('Please select at least one contact method')
+    // Date
+    try {
+      dateSchema.parse(date)
+    } catch (err: any) {
+      errors.date = err.errors?.[0]?.message || 'Please select a valid date'
+    }
+
+    // Time
+    try {
+      timeSchema.parse(time)
+    } catch (err: any) {
+      errors.time = err.errors?.[0]?.message || 'Please enter a valid time'
+    }
+
+    // Duration
+    try {
+      durationSchema.parse(duration)
+    } catch (err: any) {
+      errors.duration = err.errors?.[0]?.message || 'Please enter a valid duration'
+    }
+
+    // Name
+    try {
+      nameSchema.parse(requesterName.trim())
+    } catch (err: any) {
+      errors.requesterName = err.errors?.[0]?.message || 'Please enter a valid name'
+    }
+
+    // Phone
+    try {
+      phoneSchema.parse(phone.trim())
+      const phoneValidation = validatePhoneNumber(phone.trim())
+      if (!phoneValidation.valid) {
+        errors.phone = 'Please enter a valid phone number (10-13 digits)'
+      }
+    } catch (err: any) {
+      errors.phone = err.errors?.[0]?.message || 'Please enter a valid phone number'
+    }
+
+    // Location
+    if (!location) {
+      errors.location = 'Please select a location on the map'
+    } else {
+      if (!validateCoordinates(location.latitude, location.longitude)) {
+        errors.location = 'Invalid location coordinates'
+      } else {
+        try {
+          locationSchema.parse(location)
+        } catch (err: any) {
+          errors.location = err.errors?.[0]?.message || 'Invalid location'
+        }
+      }
+    }
+
+    // Payment amounts
+    if (paymentType === 'fixed') {
+      try {
+        amountSchema.parse(fixedAmount)
+      } catch (err: any) {
+        errors.fixedAmount = err.errors?.[0]?.message || 'Please enter a valid amount'
+      }
+    } else {
+      try {
+        amountSchema.parse(minAmount)
+      } catch (err: any) {
+        errors.minAmount = err.errors?.[0]?.message || 'Please enter a valid minimum amount'
+      }
+      try {
+        amountSchema.parse(maxAmount)
+      } catch (err: any) {
+        errors.maxAmount = err.errors?.[0]?.message || 'Please enter a valid maximum amount'
+      }
+      if (minAmount && maxAmount) {
+        const min = parseFloat(minAmount)
+        const max = parseFloat(maxAmount)
+        if (min > max) {
+          errors.maxAmount = 'Maximum amount must be greater than minimum amount'
+        }
+      }
+    }
+
+    // Contact methods
+    try {
+      contactMethodsSchema.parse(preferredContactMethods)
+    } catch (err: any) {
+      errors.contactMethods = err.errors?.[0]?.message || 'Please select at least one contact method'
+    }
+
+    // Optional fields (preference shop, additional info)
+    if (preferenceShop) {
+      try {
+        textFieldSchema(0, 200).parse(preferenceShop)
+      } catch (err: any) {
+        errors.preferenceShop = err.errors?.[0]?.message || 'Preference shop must be less than 200 characters'
+      }
+    }
+
+    if (additionalInfo) {
+      try {
+        textFieldSchema(0, 1000).parse(additionalInfo)
+      } catch (err: any) {
+        errors.additionalInfo = err.errors?.[0]?.message || 'Additional info must be less than 1000 characters'
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors)
+      const firstError = Object.values(errors)[0]
+      setError(firstError)
+      showToast(firstError, 'error')
       return
     }
 
@@ -126,16 +253,24 @@ export default function RequestHelp() {
     setError('')
 
     try {
+      // Sanitize all inputs before saving
+      const sanitizedCategory = sanitizeInput(category)
+      const sanitizedRequesterName = sanitizeInput(requesterName.trim())
+      const sanitizedPhone = phone.trim()
+      const sanitizedLocation = sanitizeInput(location!.address)
+      const sanitizedPreferenceShop = preferenceShop ? sanitizeInput(preferenceShop.trim()) : null
+      const sanitizedAdditionalInfo = additionalInfo ? sanitizeInput(additionalInfo.trim()) : null
+
       // Build request data, conditionally including preferred_contact_methods
       const requestData: any = {
         user_id: user.id,
-        title: category ? `${category.charAt(0).toUpperCase() + category.slice(1)} Help Request` : 'Help Request',
-        description: `Category: ${category}\nDate: ${date}\nTime: ${time}\nDuration: ${duration} ${durationUnit}\nAdditional Info: ${additionalInfo || 'None'}`,
-        location: location!.address,
+        title: sanitizedCategory ? `${sanitizedCategory.charAt(0).toUpperCase() + sanitizedCategory.slice(1)} Help Request` : 'Help Request',
+        description: `Category: ${sanitizedCategory}\nDate: ${date}\nTime: ${time}\nDuration: ${duration} ${durationUnit}\nAdditional Info: ${sanitizedAdditionalInfo || 'None'}`,
+        location: sanitizedLocation,
         latitude: location!.latitude,
         longitude: location!.longitude,
-        phone,
-        requester_name: requesterName,
+        phone: sanitizedPhone,
+        requester_name: sanitizedRequesterName,
         date_needed: date,
         time_needed: time,
         duration: `${duration} ${durationUnit}`,
@@ -143,8 +278,8 @@ export default function RequestHelp() {
         fixed_amount: paymentType === 'fixed' ? parseFloat(fixedAmount) : null,
         min_amount: paymentType === 'range' ? parseFloat(minAmount) : null,
         max_amount: paymentType === 'range' ? parseFloat(maxAmount) : null,
-        preference_shop: preferenceShop || null,
-        additional_info: additionalInfo,
+        preference_shop: sanitizedPreferenceShop,
+        additional_info: sanitizedAdditionalInfo,
         status: 'pending',
       }
 

@@ -10,6 +10,8 @@ import ContactModal from '@/components/ContactModal'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import { useToast } from '@/components/ui/ToastContainer'
+import { amountSchema, counterOfferSchema } from '@/lib/validation'
+import { sanitizeInput } from '@/lib/security'
 
 interface HelpRequest {
   id: string
@@ -154,20 +156,43 @@ export default function OfferHelp() {
 
   const handleCounterOffer = async (requestId: string) => {
     const counterOffer = counterOffers[requestId]
-    if (!counterOffer || !counterOffer.amount || parseFloat(counterOffer.amount) <= 0) {
-      showToast('Please enter a valid amount', 'error')
+    
+    // Validate amount
+    if (!counterOffer || !counterOffer.amount) {
+      showToast('Please enter an amount', 'error')
+      return
+    }
+
+    // Validate using schema
+    try {
+      amountSchema.parse(counterOffer.amount)
+    } catch (err: any) {
+      showToast(err.errors?.[0]?.message || 'Please enter a valid amount', 'error')
+      return
+    }
+
+    // Validate counter offer schema
+    try {
+      counterOfferSchema.parse({
+        amount: counterOffer.amount,
+        requestId,
+      })
+    } catch (err: any) {
+      showToast(err.errors?.[0]?.message || 'Invalid counter offer', 'error')
       return
     }
 
     setSubmittingCounterOffer({ ...submittingCounterOffer, [requestId]: true })
 
     try {
+      const sanitizedAmount = parseFloat(counterOffer.amount)
+      
       const { error } = await supabase
         .from('counter_offers')
         .insert({
           help_request_id: requestId,
           helper_id: user?.id,
-          proposed_amount: parseFloat(counterOffer.amount),
+          proposed_amount: sanitizedAmount,
           status: 'pending',
         })
 
