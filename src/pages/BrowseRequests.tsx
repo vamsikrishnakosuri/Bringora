@@ -7,8 +7,11 @@ import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import EmptyState from '@/components/EmptyState'
 import Skeleton from '@/components/ui/Skeleton'
-import { MapPin, Clock, Calendar, DollarSign, ShoppingBag, Phone, UserCheck, Eye, Search } from 'lucide-react'
+import { MapPin, Clock, Calendar, DollarSign, ShoppingBag, Phone, UserCheck, Eye, Search, Send } from 'lucide-react'
 import { calculateDistance } from '@/lib/utils'
+import ContactModal from '@/components/ContactModal'
+import Input from '@/components/ui/Input'
+import { useToast } from '@/components/ui/ToastContainer'
 
 interface HelpRequest {
   id: string
@@ -29,6 +32,8 @@ interface HelpRequest {
   max_amount?: number
   preference_shop?: string
   additional_info?: string
+  preferred_contact_methods?: ('call' | 'message' | 'email')[]
+  requester_email?: string
   status: string
   created_at: string
   distance?: number
@@ -51,9 +56,16 @@ export default function BrowseRequests() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { t } = useLanguage()
+  const { showToast } = useToast()
   const [requests, setRequests] = useState<HelpRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null)
+  const [contactModal, setContactModal] = useState<{ isOpen: boolean; request: HelpRequest | null }>({
+    isOpen: false,
+    request: null,
+  })
+  const [counterOffers, setCounterOffers] = useState<Record<string, { amount: string; showInput: boolean }>>({})
+  const [submittingCounterOffer, setSubmittingCounterOffer] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     if (user) {
@@ -104,7 +116,10 @@ export default function BrowseRequests() {
     try {
       const { data, error } = await supabase
         .from('help_requests')
-        .select('*')
+        .select(`
+          *,
+          profiles!help_requests_user_id_fkey(email)
+        `)
         .eq('status', 'pending')
         .order('created_at', { ascending: false })
         .limit(50)
@@ -115,7 +130,7 @@ export default function BrowseRequests() {
       // Users don't want to see their own requests when offering help
       let filteredRequests = (data || []).filter((request) => request.user_id !== user?.id)
 
-      let processedRequests = filteredRequests.map((request) => {
+      let processedRequests = filteredRequests.map((request: any) => {
         let distance: number | undefined
         if (userLocation && request.latitude && request.longitude) {
           distance = calculateDistance(
@@ -125,7 +140,12 @@ export default function BrowseRequests() {
             request.longitude
           )
         }
-        return { ...request, distance }
+        return { 
+          ...request, 
+          distance,
+          requester_email: request.profiles?.email,
+          preferred_contact_methods: request.preferred_contact_methods || ['call', 'message', 'email']
+        }
       })
 
       // Sort by distance if available
@@ -188,8 +208,49 @@ export default function BrowseRequests() {
     }
   }
 
-  const handleContact = (phone: string, requesterName?: string) => {
-    window.open(`tel:${phone}`, '_self')
+  const handleContact = (request: HelpRequest) => {
+    setContactModal({ isOpen: true, request })
+  }
+
+  const handleCounterOffer = async (requestId: string) => {
+    const counterOffer = counterOffers[requestId]
+    if (!counterOffer || !counterOffer.amount || parseFloat(counterOffer.amount) <= 0) {
+      showToast('Please enter a valid amount', 'error')
+      return
+    }
+
+    setSubmittingCounterOffer({ ...submittingCounterOffer, [requestId]: true })
+
+    try {
+      const { error } = await supabase
+        .from('counter_offers')
+        .insert({
+          help_request_id: requestId,
+          helper_id: user?.id,
+          proposed_amount: parseFloat(counterOffer.amount),
+          status: 'pending',
+        })
+
+      if (error) throw error
+
+      showToast('Counter offer sent successfully!', 'success')
+      setCounterOffers({ ...counterOffers, [requestId]: { amount: '', showInput: false } })
+    } catch (err: any) {
+      console.error('Error submitting counter offer:', err)
+      showToast(err.message || 'Failed to send counter offer', 'error')
+    } finally {
+      setSubmittingCounterOffer({ ...submittingCounterOffer, [requestId]: false })
+    }
+  }
+
+  const toggleCounterOfferInput = (requestId: string) => {
+    setCounterOffers({
+      ...counterOffers,
+      [requestId]: {
+        amount: '',
+        showInput: !counterOffers[requestId]?.showInput,
+      },
+    })
   }
 
   if (loading) {
@@ -374,10 +435,62 @@ export default function BrowseRequests() {
                         </div>
                       </div>
 
+                      {/* Counter Offer Section */}
+                      <div className="mt-4 pt-4 border-t border-white/10 dark:border-white/5">
+                        {!counterOffers[request.id]?.showInput ? (
+                          <Button
+                            variant="outline"
+                            onClick={() => toggleCounterOfferInput(request.id)}
+                            className="w-full flex items-center justify-center gap-2 text-sm"
+                          >
+                            <DollarSign className="w-4 h-4" />
+                            <span>Propose Different Amount</span>
+                          </Button>
+                        ) : (
+                          <div className="space-y-2">
+                            <Input
+                              type="number"
+                              label="Your Proposed Amount (₹)"
+                              value={counterOffers[request.id]?.amount || ''}
+                              onChange={(e) =>
+                                setCounterOffers({
+                                  ...counterOffers,
+                                  [request.id]: {
+                                    ...counterOffers[request.id],
+                                    amount: e.target.value,
+                                  },
+                                })
+                              }
+                              placeholder="e.g., 1500"
+                              min="1"
+                              step="100"
+                            />
+                            <div className="flex gap-2">
+                              <Button
+                                onClick={() => handleCounterOffer(request.id)}
+                                disabled={submittingCounterOffer[request.id]}
+                                loading={submittingCounterOffer[request.id]}
+                                className="flex-1 flex items-center justify-center gap-2"
+                              >
+                                <Send className="w-4 h-4" />
+                                <span>Send Counter Offer</span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                onClick={() => toggleCounterOfferInput(request.id)}
+                                className="px-4"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
                       {/* Premium Action Buttons */}
                       <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t border-white/20 dark:border-white/10">
                         <Button
-                          onClick={() => handleContact(request.phone, requesterName)}
+                          onClick={() => handleContact(request)}
                           className="flex-1 flex items-center justify-center gap-2 backdrop-blur-sm bg-foreground dark:bg-white text-background dark:text-foreground hover:opacity-90 transition-all duration-300 group/btn"
                         >
                           <UserCheck className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
@@ -389,7 +502,7 @@ export default function BrowseRequests() {
                           className="flex items-center justify-center gap-2 backdrop-blur-sm border-2 border-foreground dark:border-white/20 dark:text-white hover:bg-foreground hover:text-background dark:hover:bg-white/10 transition-all duration-300 group/btn"
                         >
                           <Eye className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                                <span>{t('browseRequests.viewDetails')}</span>
+                          <span>{t('browseRequests.viewDetails')}</span>
                         </Button>
                       </div>
                     </div>
@@ -400,6 +513,18 @@ export default function BrowseRequests() {
           </div>
         )}
       </div>
+
+      {/* Contact Modal */}
+      {contactModal.request && (
+        <ContactModal
+          isOpen={contactModal.isOpen}
+          onClose={() => setContactModal({ isOpen: false, request: null })}
+          phone={contactModal.request.phone}
+          email={contactModal.request.requester_email}
+          requesterName={contactModal.request.requester_name}
+          preferredMethods={contactModal.request.preferred_contact_methods || ['call', 'message', 'email']}
+        />
+      )}
     </div>
   )
 }

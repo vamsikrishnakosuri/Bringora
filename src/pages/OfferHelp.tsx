@@ -5,16 +5,22 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { supabase } from '@/lib/supabase'
 import { calculateDistance } from '@/lib/utils'
 import Card from '@/components/ui/Card'
-import { MapPin, Phone, Clock, DollarSign, ShoppingBag, Navigation } from 'lucide-react'
+import { MapPin, Phone, Clock, DollarSign, ShoppingBag, Navigation, Send } from 'lucide-react'
+import ContactModal from '@/components/ContactModal'
+import Input from '@/components/ui/Input'
+import Button from '@/components/ui/Button'
+import { useToast } from '@/components/ui/ToastContainer'
 
 interface HelpRequest {
   id: string
+  user_id: string
   title: string
   description: string
   location: string
   latitude: number
   longitude: number
   phone: string
+  requester_name?: string
   date_needed?: string
   time_needed?: string
   duration?: string
@@ -23,8 +29,11 @@ interface HelpRequest {
   min_amount?: number
   max_amount?: number
   preference_shop?: string
+  preferred_contact_methods?: ('call' | 'message' | 'email')[]
+  requester_email?: string
   created_at: string
   status: string
+  distance?: number
 }
 
 interface HelperLocation {
@@ -38,10 +47,17 @@ export default function OfferHelp() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { t } = useLanguage()
+  const { showToast } = useToast()
 
   const [requests, setRequests] = useState<HelpRequest[]>([])
   const [helperLocation, setHelperLocation] = useState<HelperLocation | null>(null)
   const [loading, setLoading] = useState(true)
+  const [contactModal, setContactModal] = useState<{ isOpen: boolean; request: HelpRequest | null }>({
+    isOpen: false,
+    request: null,
+  })
+  const [counterOffers, setCounterOffers] = useState<Record<string, { amount: string; showInput: boolean }>>({})
+  const [submittingCounterOffer, setSubmittingCounterOffer] = useState<Record<string, boolean>>({})
 
   if (!user) {
     navigate('/auth?redirect=/offer-help')
@@ -74,7 +90,10 @@ export default function OfferHelp() {
     try {
       const { data, error } = await supabase
         .from('help_requests')
-        .select('*')
+        .select(`
+          *,
+          profiles!help_requests_user_id_fkey(email)
+        `)
         .eq('status', 'pending')
         .order('created_at', { ascending: false })
         .limit(20)
@@ -83,12 +102,12 @@ export default function OfferHelp() {
       
       // CRITICAL: Filter out requests created by the current user
       // Users don't want to see their own requests when offering help
-      let filteredRequests = (data || []).filter((request) => request.user_id !== user?.id)
+      let filteredRequests = (data || []).filter((request: any) => request.user_id !== user?.id)
       
       // Filter by distance if helper location is set
       if (helperLocation && helperLocation.service_latitude && helperLocation.service_longitude) {
         filteredRequests = filteredRequests
-          .filter((request) => {
+          .filter((request: any) => {
             if (!request.latitude || !request.longitude) return false
             const distance = calculateDistance(
               helperLocation.service_latitude,
@@ -101,7 +120,7 @@ export default function OfferHelp() {
               : helperLocation.service_radius
             return distance <= maxDistance
           })
-          .map((request) => ({
+          .map((request: any) => ({
             ...request,
             distance: calculateDistance(
               helperLocation.service_latitude,
@@ -109,8 +128,16 @@ export default function OfferHelp() {
               request.latitude,
               request.longitude
             ),
+            requester_email: request.profiles?.email,
+            preferred_contact_methods: request.preferred_contact_methods || ['call', 'message', 'email'],
           }))
           .sort((a: any, b: any) => a.distance - b.distance)
+      } else {
+        filteredRequests = filteredRequests.map((request: any) => ({
+          ...request,
+          requester_email: request.profiles?.email,
+          preferred_contact_methods: request.preferred_contact_methods || ['call', 'message', 'email'],
+        }))
       }
       
       setRequests(filteredRequests)
@@ -119,6 +146,51 @@ export default function OfferHelp() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleContact = (request: HelpRequest) => {
+    setContactModal({ isOpen: true, request })
+  }
+
+  const handleCounterOffer = async (requestId: string) => {
+    const counterOffer = counterOffers[requestId]
+    if (!counterOffer || !counterOffer.amount || parseFloat(counterOffer.amount) <= 0) {
+      showToast('Please enter a valid amount', 'error')
+      return
+    }
+
+    setSubmittingCounterOffer({ ...submittingCounterOffer, [requestId]: true })
+
+    try {
+      const { error } = await supabase
+        .from('counter_offers')
+        .insert({
+          help_request_id: requestId,
+          helper_id: user?.id,
+          proposed_amount: parseFloat(counterOffer.amount),
+          status: 'pending',
+        })
+
+      if (error) throw error
+
+      showToast('Counter offer sent successfully!', 'success')
+      setCounterOffers({ ...counterOffers, [requestId]: { amount: '', showInput: false } })
+    } catch (err: any) {
+      console.error('Error submitting counter offer:', err)
+      showToast(err.message || 'Failed to send counter offer', 'error')
+    } finally {
+      setSubmittingCounterOffer({ ...submittingCounterOffer, [requestId]: false })
+    }
+  }
+
+  const toggleCounterOfferInput = (requestId: string) => {
+    setCounterOffers({
+      ...counterOffers,
+      [requestId]: {
+        amount: '',
+        showInput: !counterOffers[requestId]?.showInput,
+      },
+    })
   }
 
   const formatDistance = (distance: number, unit: string = 'km') => {
@@ -208,18 +280,82 @@ export default function OfferHelp() {
                   )}
                 </div>
 
-                <a
-                  href={`tel:${request.phone}`}
-                  className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg bg-foreground text-background dark:bg-white/10 dark:text-white hover:opacity-90 dark:hover:bg-white/15 transition-all backdrop-blur-sm border border-white/20 dark:border-white/10"
+                {/* Counter Offer Section */}
+                <div className="mb-3 pt-3 border-t border-white/10 dark:border-white/5">
+                  {!counterOffers[request.id]?.showInput ? (
+                    <Button
+                      variant="outline"
+                      onClick={() => toggleCounterOfferInput(request.id)}
+                      className="w-full flex items-center justify-center gap-2 text-sm"
+                    >
+                      <DollarSign className="w-4 h-4" />
+                      <span>Propose Different Amount</span>
+                    </Button>
+                  ) : (
+                    <div className="space-y-2">
+                      <Input
+                        type="number"
+                        label="Your Proposed Amount (₹)"
+                        value={counterOffers[request.id]?.amount || ''}
+                        onChange={(e) =>
+                          setCounterOffers({
+                            ...counterOffers,
+                            [request.id]: {
+                              ...counterOffers[request.id],
+                              amount: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="e.g., 1500"
+                        min="1"
+                        step="100"
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => handleCounterOffer(request.id)}
+                          disabled={submittingCounterOffer[request.id]}
+                          loading={submittingCounterOffer[request.id]}
+                          className="flex-1 flex items-center justify-center gap-2"
+                        >
+                          <Send className="w-4 h-4" />
+                          <span>Send Counter Offer</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          onClick={() => toggleCounterOfferInput(request.id)}
+                          className="px-4"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <Button
+                  onClick={() => handleContact(request)}
+                  className="w-full flex items-center justify-center gap-2"
                 >
                   <Phone className="w-4 h-4" />
                   <span>Contact Requester</span>
-                </a>
+                </Button>
               </Card>
             ))}
           </div>
         )}
       </div>
+
+      {/* Contact Modal */}
+      {contactModal.request && (
+        <ContactModal
+          isOpen={contactModal.isOpen}
+          onClose={() => setContactModal({ isOpen: false, request: null })}
+          phone={contactModal.request.phone}
+          email={contactModal.request.requester_email}
+          requesterName={contactModal.request.requester_name}
+          preferredMethods={contactModal.request.preferred_contact_methods || ['call', 'message', 'email']}
+        />
+      )}
     </div>
   )
 }

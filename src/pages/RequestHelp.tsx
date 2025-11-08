@@ -8,7 +8,7 @@ import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import LocationPicker from '@/components/LocationPicker'
-import { FileText, Phone, Calendar, Clock, DollarSign, MapPin, User, ShoppingBag } from 'lucide-react'
+import { FileText, Phone, Calendar, Clock, DollarSign, MapPin, User, ShoppingBag, MessageSquare, Mail } from 'lucide-react'
 
 interface RequestSummary {
   category: string
@@ -52,6 +52,7 @@ export default function RequestHelp() {
   const [maxAmount, setMaxAmount] = useState('')
   const [preferenceShop, setPreferenceShop] = useState('')
   const [additionalInfo, setAdditionalInfo] = useState('')
+  const [preferredContactMethods, setPreferredContactMethods] = useState<('call' | 'message' | 'email')[]>(['call', 'message', 'email'])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [profileLoaded, setProfileLoaded] = useState(false)
@@ -112,6 +113,11 @@ export default function RequestHelp() {
       return
     }
 
+    if (preferredContactMethods.length === 0) {
+      setError('Please select at least one contact method')
+      return
+    }
+
     setStep('summary')
   }
 
@@ -136,10 +142,11 @@ export default function RequestHelp() {
         fixed_amount: paymentType === 'fixed' ? parseFloat(fixedAmount) : null,
         min_amount: paymentType === 'range' ? parseFloat(minAmount) : null,
         max_amount: paymentType === 'range' ? parseFloat(maxAmount) : null,
-        preference_shop: preferenceShop || null,
-        additional_info: additionalInfo,
-        status: 'pending',
-      }
+                preference_shop: preferenceShop || null,
+                additional_info: additionalInfo,
+                preferred_contact_methods: preferredContactMethods,
+                status: 'pending',
+              }
 
       const { error: insertError } = await supabase
         .from('help_requests')
@@ -451,6 +458,48 @@ export default function RequestHelp() {
                     error={fieldErrors.phone}
                     required
                   />
+                </div>
+
+                {/* Preferred Contact Methods */}
+                <div>
+                  <label className="block text-sm font-medium mb-2 dark:text-white">
+                    Preferred Contact Methods <span className="text-red-500">*</span>
+                  </label>
+                  <p className="text-xs text-muted dark:text-gray-400 mb-3">
+                    Select how helpers can contact you
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {(['call', 'message', 'email'] as const).map((method) => (
+                      <button
+                        key={method}
+                        type="button"
+                        onClick={() => {
+                          if (preferredContactMethods.includes(method)) {
+                            if (preferredContactMethods.length > 1) {
+                              setPreferredContactMethods(preferredContactMethods.filter((m) => m !== method))
+                            }
+                          } else {
+                            setPreferredContactMethods([...preferredContactMethods, method])
+                          }
+                        }}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
+                          preferredContactMethods.includes(method)
+                            ? 'bg-foreground text-background dark:bg-white/20 dark:text-white border-white/20 dark:border-white/10'
+                            : 'bg-white/10 dark:bg-white/5 border-gray-300 dark:border-white/10 text-foreground dark:text-white'
+                        }`}
+                      >
+                        {method === 'call' && <Phone className="w-4 h-4" />}
+                        {method === 'message' && <MessageSquare className="w-4 h-4" />}
+                        {method === 'email' && <Mail className="w-4 h-4" />}
+                        <span className="capitalize">{method}</span>
+                      </button>
+                    ))}
+                  </div>
+                  {preferredContactMethods.length === 0 && (
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">
+                      Please select at least one contact method
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
