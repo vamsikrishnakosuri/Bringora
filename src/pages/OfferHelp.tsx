@@ -118,8 +118,8 @@ export default function OfferHelp() {
       // Users don't want to see their own requests when offering help
       let filteredRequests = (data || []).filter((request: any) => request.user_id !== user?.id)
       
-      // Filter by distance if helper location is set
-      if (helperLocation && helperLocation.service_latitude && helperLocation.service_longitude) {
+      // Filter by distance if helper location and radius are set
+      if (helperLocation && helperLocation.service_latitude && helperLocation.service_longitude && helperLocation.service_radius) {
         filteredRequests = filteredRequests
           .filter((request: any) => {
             if (!request.latitude || !request.longitude) return false
@@ -129,6 +129,7 @@ export default function OfferHelp() {
               request.latitude,
               request.longitude
             )
+            // Convert radius to kilometers for comparison (distance is always in km)
             const maxDistance = helperLocation.service_radius_unit === 'miles' 
               ? helperLocation.service_radius * 1.60934 
               : helperLocation.service_radius
