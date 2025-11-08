@@ -417,7 +417,10 @@ export default function RequestHelp() {
             {/* Location Details */}
             <div>
               <h2 className="text-xl font-semibold mb-4 dark:text-white">Location Details</h2>
-              <LocationPicker onLocationSelect={handleLocationSelect} />
+              <LocationPicker 
+                onLocationSelect={handleLocationSelect} 
+                initialLocation={location || undefined}
+              />
             </div>
 
             {/* Payment Details */}

@@ -22,15 +22,31 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
   const [viewState, setViewState] = useState({
     longitude: initialLocation?.longitude || -122.4,
     latitude: initialLocation?.latitude || 37.8,
-    zoom: 12,
+    zoom: initialLocation ? 14 : 12,
   })
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState(initialLocation?.address || '')
   const [selectedLocation, setSelectedLocation] = useState<{
     address: string
     latitude: number
     longitude: number
   } | null>(initialLocation || null)
   const mapRef = useRef<MapRef>(null)
+
+  // Update when initialLocation changes
+  useEffect(() => {
+    if (initialLocation) {
+      setSelectedLocation(initialLocation)
+      setSearchQuery(initialLocation.address)
+      setViewState({
+        longitude: initialLocation.longitude,
+        latitude: initialLocation.latitude,
+        zoom: 14,
+      })
+      // Call onLocationSelect to notify parent
+      onLocationSelect(initialLocation)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialLocation?.latitude, initialLocation?.longitude])
 
   const handleMapClick = useCallback(async (event: any) => {
     const { lng, lat } = event.lngLat

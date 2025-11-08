@@ -21,6 +21,31 @@
   }
 }
 
+/* Fix date and time input icons visibility in dark mode */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator,
+.dark input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(2);
+  opacity: 1;
+}
+
+/* Firefox date/time input styling */
+input[type="date"],
+input[type="time"] {
+  color-scheme: dark;
+}
+
+.light input[type="date"],
+.light input[type="time"] {
+  color-scheme: light;
+}
+
 @layer utilities {
   .gradient-text {
     @apply bg-gradient-to-r from-foreground via-muted to-foreground bg-clip-text text-transparent;
