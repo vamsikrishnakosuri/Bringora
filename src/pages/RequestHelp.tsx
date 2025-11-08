@@ -144,7 +144,7 @@ export default function RequestHelp() {
         max_amount: paymentType === 'range' ? parseFloat(maxAmount) : null,
                 preference_shop: preferenceShop || null,
                 additional_info: additionalInfo,
-                preferred_contact_methods: preferredContactMethods,
+                preferred_contact_methods: preferredContactMethods.length > 0 ? preferredContactMethods : ['call', 'message', 'email'], // Fallback if empty
                 status: 'pending',
               }
 

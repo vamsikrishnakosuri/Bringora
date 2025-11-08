@@ -81,8 +81,9 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
     setIsSearching(true)
     try {
       // Focus on India by adding proximity and country filter
+      // Limit to 3 results to keep dropdown small
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&limit=5&proximity=78.4867,17.3850&country=IN`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&limit=3&proximity=78.4867,17.3850&country=IN`
       )
       const data = await response.json()
       
@@ -164,8 +165,9 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
     setSelectedLocation(location)
     onLocationSelect(location)
     setSearchQuery(address)
-    setShowSuggestions(false)
+    setShowSuggestions(false) // Hide suggestions immediately
     
+    // Update map view immediately
     setViewState({
       longitude: lng,
       latitude: lat,
@@ -233,20 +235,20 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
             className="pl-10"
           />
           
-          {/* Autocomplete Suggestions Dropdown */}
+          {/* Autocomplete Suggestions Dropdown - Compact and positioned above input */}
           {showSuggestions && searchResults.length > 0 && (
-            <div className="absolute z-50 w-full mt-1 bg-white dark:bg-[#1A1A1A] border border-gray-300 dark:border-white/10 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+            <div className="absolute z-50 w-full bottom-full mb-1 bg-white dark:bg-[#1A1A1A] border border-gray-300 dark:border-white/10 rounded-lg shadow-xl max-h-48 overflow-y-auto">
               {searchResults.map((feature, index) => (
                 <button
                   key={feature.id || index}
                   type="button"
                   onClick={() => handleSelectSuggestion(feature)}
-                  className="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors border-b border-gray-100 dark:border-white/5 last:border-b-0"
+                  className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors border-b border-gray-100 dark:border-white/5 last:border-b-0"
                 >
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-4 h-4 text-muted dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                  <div className="flex items-start gap-2">
+                    <MapPin className="w-3.5 h-3.5 text-muted dark:text-gray-400 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground dark:text-white truncate">
+                      <p className="text-xs font-medium text-foreground dark:text-white truncate">
                         {feature.text}
                       </p>
                       <p className="text-xs text-muted dark:text-gray-400 truncate">
@@ -273,12 +275,18 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
         </Button>
       </div>
 
-      <div className="relative h-64 rounded-lg overflow-hidden border border-white/20 dark:border-white/10">
+      <div 
+        className="relative h-64 rounded-lg overflow-hidden border border-white/20 dark:border-white/10"
+        onClick={() => setShowSuggestions(false)} // Hide suggestions when clicking on map
+      >
         <Map
           {...viewState}
           ref={mapRef}
           onMove={(evt) => setViewState(evt.viewState)}
-          onClick={handleMapClick}
+          onClick={(e) => {
+            setShowSuggestions(false) // Hide suggestions when clicking on map
+            handleMapClick(e)
+          }}
           mapboxAccessToken={MAPBOX_TOKEN}
           style={{ width: '100%', height: '100%' }}
           mapStyle="mapbox://styles/mapbox/streets-v12"
