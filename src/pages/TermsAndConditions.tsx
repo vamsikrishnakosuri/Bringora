@@ -52,23 +52,50 @@ export default function TermsAndConditions() {
 
             {/* Terms Content */}
             <div className="prose dark:prose-invert max-w-none">
+              {/* Free Service Notice */}
+              <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 dark:border-green-400 rounded-r-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                      <span className="text-green-600 dark:text-green-400 text-xl">✓</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-green-900 dark:text-green-200 mb-2">
+                      🆓 100% Free Service
+                    </h3>
+                    <p className="text-sm text-green-800 dark:text-green-300 leading-relaxed">
+                      <strong>Bringora is completely free and non-commercial.</strong> We do not charge users any fees, 
+                      do not display advertisements, and do not take commissions from transactions. This is a free 
+                      community platform created as an educational project to help people connect and assist each other.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <section className="mb-6">
                 <h2 className="text-xl font-bold mb-3 dark:text-white flex items-center gap-2">
                   <Shield className="w-5 h-5" />
                   1. Platform Usage
                 </h2>
                 <p className="text-muted dark:text-gray-300 leading-relaxed">
-                  Bringora is a community platform connecting people who need help with verified helpers. 
-                  By using our platform, you agree to use it responsibly and in accordance with these terms.
+                  Bringora is a <strong>free, non-commercial</strong> community platform connecting people who need help 
+                  with verified helpers. This platform is provided at no cost to users. By using our platform, you agree 
+                  to use it responsibly and in accordance with these terms.
                 </p>
               </section>
 
               <section className="mb-6">
-                <h2 className="text-xl font-bold mb-3 dark:text-white">2. Payment and Transactions</h2>
+                <h2 className="text-xl font-bold mb-3 dark:text-white">2. Free Service & Payment Policy</h2>
                 <div className="space-y-3 text-muted dark:text-gray-300">
                   <p className="leading-relaxed">
+                    <strong>Bringora is a completely free platform.</strong> We do not charge users any fees, 
+                    subscriptions, or commissions. There are no advertisements, and we do not monetize user data.
+                  </p>
+                  <p className="leading-relaxed">
                     <strong>Bringora is NOT responsible for payments between users.</strong> All transactions 
-                    are conducted directly between requesters and helpers.
+                    are conducted directly between requesters and helpers. We do not process, handle, or facilitate 
+                    any payments.
                   </p>
                   <p className="leading-relaxed">
                     <strong>Payment Guidelines:</strong>
@@ -110,8 +137,9 @@ export default function TermsAndConditions() {
 
               <section className="mb-6">
                 <h2 className="text-xl font-bold mb-3 dark:text-white">5. Limitation of Liability</h2>
-                <p className="text-muted dark:text-gray-300 leading-relaxed">
-                  Bringora acts as a platform to connect users. We are not responsible for:
+                <p className="text-muted dark:text-gray-300 leading-relaxed mb-2">
+                  <strong>Bringora is provided "as is" without any warranties.</strong> This is a free, non-commercial 
+                  educational project. We are not responsible for:
                 </p>
                 <ul className="list-disc list-inside space-y-1 text-muted dark:text-gray-300 ml-4 mt-2">
                   <li>Payments made between users</li>
@@ -119,7 +147,13 @@ export default function TermsAndConditions() {
                   <li>Disputes between users</li>
                   <li>Any damages or losses incurred during transactions</li>
                   <li>Personal safety or security of users</li>
+                  <li>Service availability or uptime</li>
+                  <li>Data loss or security breaches</li>
                 </ul>
+                <p className="text-muted dark:text-gray-300 leading-relaxed mt-3">
+                  <strong>Use at your own risk.</strong> By using this free platform, you acknowledge that you are 
+                  using it voluntarily and accept all risks associated with its use.
+                </p>
               </section>
 
               <section className="mb-6">
@@ -148,6 +182,10 @@ export default function TermsAndConditions() {
                   If you encounter any issues, disputes, or need to report suspicious activity, please contact 
                   our support team through the app or email. We take all reports seriously and will investigate 
                   promptly.
+                </p>
+                <p className="text-muted dark:text-gray-300 leading-relaxed mt-2">
+                  <strong>Note:</strong> As this is a free, non-commercial project, support response times may vary. 
+                  We appreciate your patience and understanding.
                 </p>
               </section>
 
