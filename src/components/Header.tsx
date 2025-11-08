@@ -91,9 +91,9 @@ export default function Header() {
               size="sm"
               onClick={() => navigate('/my-requests')}
               aria-label="View my requests"
-              className="flex items-center gap-2 min-h-[44px]"
+              className="flex items-center gap-2 min-h-[44px] text-foreground dark:text-white hover:text-foreground dark:hover:text-white"
             >
-              <FileText className="w-4 h-4" aria-hidden="true" />
+              <FileText className="w-4 h-4 text-foreground dark:text-white" aria-hidden="true" />
               <span className="hidden lg:inline">My Requests</span>
             </Button>
           )}
@@ -105,9 +105,9 @@ export default function Header() {
               size="sm"
               onClick={handleSignOut}
               aria-label="Sign out"
-              className="flex items-center gap-2 min-h-[44px]"
+              className="flex items-center gap-2 min-h-[44px] text-foreground dark:text-white hover:text-foreground dark:hover:text-white"
             >
-              <LogOut className="w-4 h-4" aria-hidden="true" />
+              <LogOut className="w-4 h-4 text-foreground dark:text-white" aria-hidden="true" />
               <span className="hidden lg:inline">{t('nav.signOut')}</span>
             </Button>
           )}
@@ -182,9 +182,9 @@ export default function Header() {
                   navigate('/my-requests')
                   setShowMobileMenu(false)
                 }}
-                className="w-full justify-start min-h-[44px]"
+                className="w-full justify-start min-h-[44px] text-foreground dark:text-white hover:text-foreground dark:hover:text-white"
               >
-                <FileText className="w-5 h-5 mr-3" />
+                <FileText className="w-5 h-5 mr-3 text-foreground dark:text-white" />
                 <span>My Requests</span>
               </Button>
             )}
@@ -197,9 +197,9 @@ export default function Header() {
                   handleSignOut()
                   setShowMobileMenu(false)
                 }}
-                className="w-full justify-start min-h-[44px]"
+                className="w-full justify-start min-h-[44px] text-foreground dark:text-white hover:text-foreground dark:hover:text-white"
               >
-                <LogOut className="w-5 h-5 mr-3" />
+                <LogOut className="w-5 h-5 mr-3 text-foreground dark:text-white" />
                 <span>{t('nav.signOut')}</span>
               </Button>
             )}

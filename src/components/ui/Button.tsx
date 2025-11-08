@@ -29,7 +29,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               variant === 'default',
             'border-2 border-foreground bg-transparent hover:bg-foreground hover:text-background dark:border-white/20 dark:text-white dark:hover:bg-white/10':
               variant === 'outline',
-            'bg-transparent hover:bg-white/10 dark:hover:bg-white/5': variant === 'ghost',
+            'bg-transparent hover:bg-white/10 dark:hover:bg-white/5 text-foreground dark:text-white': variant === 'ghost',
             'px-3 py-1.5 text-sm': size === 'sm',
             'px-4 py-2 text-base': size === 'md',
             'px-6 py-3 text-lg': size === 'lg',
