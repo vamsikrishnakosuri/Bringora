@@ -62,6 +62,9 @@ export default function OfferHelp() {
   const [counterOffers, setCounterOffers] = useState<Record<string, { amount: string; showInput: boolean }>>({})
   const [submittingCounterOffer, setSubmittingCounterOffer] = useState<Record<string, boolean>>({})
   const [showServiceRadiusSetup, setShowServiceRadiusSetup] = useState(false)
+  const [isHelper, setIsHelper] = useState<boolean | null>(null)
+  const [hasApplication, setHasApplication] = useState<boolean | null>(null)
+  const [showApplicationForm, setShowApplicationForm] = useState(false)
 
   if (!user) {
     navigate('/auth?redirect=/offer-help')
@@ -69,8 +72,57 @@ export default function OfferHelp() {
   }
 
   useEffect(() => {
-    loadHelperLocation()
+    if (user) {
+      checkHelperStatus()
+      loadHelperLocation()
+    }
   }, [user])
+
+  const checkHelperStatus = async () => {
+    try {
+      // Check if user is already a helper
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_helper, is_approved')
+        .eq('id', user?.id)
+        .single()
+
+      if (profile?.is_helper && profile?.is_approved) {
+        setIsHelper(true)
+        setHasApplication(true)
+        return
+      }
+
+      // Check if user has a pending application
+      const { data: application } = await supabase
+        .from('helper_applications')
+        .select('id, status')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (application) {
+        setHasApplication(true)
+        if (application.status === 'approved') {
+          setIsHelper(true)
+        } else if (application.status === 'pending') {
+          setIsHelper(false)
+          // Show pending message
+        } else {
+          setIsHelper(false)
+          // Rejected - can reapply
+        }
+      } else {
+        setIsHelper(false)
+        setHasApplication(false)
+      }
+    } catch (err) {
+      console.error('Error checking helper status:', err)
+      setIsHelper(false)
+      setHasApplication(false)
+    }
+  }
 
   useEffect(() => {
     // Reload requests when helper location changes
@@ -239,8 +291,52 @@ export default function OfferHelp() {
     return `${distance.toFixed(1)} km`
   }
 
-  // Show service radius setup if helper location is not set
-  if (showServiceRadiusSetup || (!loading && !helperLocation)) {
+  // Show helper application form if user is not a helper
+  if (showApplicationForm || (isHelper === false && hasApplication === false && !loading)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-6 sm:py-8 lg:py-12 px-3 sm:px-4 lg:px-6">
+        <div className="container mx-auto max-w-3xl">
+          <HelperApplicationForm
+            onComplete={() => {
+              setShowApplicationForm(false)
+              checkHelperStatus()
+            }}
+            onCancel={() => {
+              setShowApplicationForm(false)
+              navigate('/')
+            }}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // Show pending application message
+  if (isHelper === false && hasApplication === true && !loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-6 sm:py-8 lg:py-12 px-3 sm:px-4 lg:px-6">
+        <div className="container mx-auto max-w-3xl">
+          <Card className="backdrop-blur-xl bg-white/80 dark:bg-[#1A1A1A]/80 border-white/20 dark:border-white/10 text-center">
+            <div className="p-6">
+              <div className="w-20 h-20 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-12 h-12 text-yellow-600 dark:text-yellow-400" />
+              </div>
+              <h2 className="text-2xl font-bold mb-4 dark:text-white">Application Under Review</h2>
+              <p className="text-muted dark:text-gray-400 mb-6">
+                Your helper application is being verified. We will notify you once your government ID verification is complete (usually within 24 hours).
+              </p>
+              <Button onClick={() => navigate('/')} variant="outline">
+                Go to Homepage
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
+  // Show service radius setup if helper location is not set (but user is approved helper)
+  if ((showServiceRadiusSetup || (!loading && !helperLocation && isHelper === true))) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-6 sm:py-8 lg:py-12 px-3 sm:px-4 lg:px-6">
         <div className="container mx-auto max-w-3xl">

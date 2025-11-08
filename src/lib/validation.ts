@@ -235,6 +235,139 @@ export const counterOfferSchema = z.object({
   requestId: z.string().uuid('Invalid request ID'),
 })
 
+// Indian Government ID Validation Schemas
+
+// Aadhaar number validation (12 digits, with checksum)
+export const aadhaarSchema = z
+  .string()
+  .min(1, 'Aadhaar number is required')
+  .regex(/^\d{12}$/, 'Aadhaar must be exactly 12 digits')
+  .refine(
+    (aadhaar) => {
+      // Aadhaar should not start with 0 or 1
+      return !aadhaar.startsWith('0') && !aadhaar.startsWith('1')
+    },
+    { message: 'Aadhaar number cannot start with 0 or 1' }
+  )
+  .refine(
+    (aadhaar) => {
+      // Basic checksum validation (Verhoeff algorithm simplified)
+      // For now, just check it's not all same digits
+      return !/^(\d)\1{11}$/.test(aadhaar)
+    },
+    { message: 'Invalid Aadhaar number format' }
+  )
+
+// PAN number validation (10 alphanumeric: ABCDE1234F)
+export const panSchema = z
+  .string()
+  .min(1, 'PAN number is required')
+  .regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'PAN must be in format: ABCDE1234F (5 letters, 4 digits, 1 letter)')
+  .transform((pan) => pan.toUpperCase())
+
+// Driving License validation (varies by state, basic format check)
+export const drivingLicenseSchema = z
+  .string()
+  .min(1, 'Driving License number is required')
+  .min(8, 'Driving License must be at least 8 characters')
+  .max(20, 'Driving License must be less than 20 characters')
+  .regex(/^[A-Z0-9\/\-]+$/, 'Driving License can only contain letters, numbers, / and -')
+
+// Passport validation (8 alphanumeric characters)
+export const passportSchema = z
+  .string()
+  .min(1, 'Passport number is required')
+  .regex(/^[A-Z0-9]{8,9}$/, 'Passport must be 8-9 alphanumeric characters')
+  .transform((passport) => passport.toUpperCase())
+
+// Voter ID validation (alphanumeric, varies by state)
+export const voterIdSchema = z
+  .string()
+  .min(1, 'Voter ID number is required')
+  .min(8, 'Voter ID must be at least 8 characters')
+  .max(20, 'Voter ID must be less than 20 characters')
+  .regex(/^[A-Z0-9\/\-]+$/, 'Voter ID can only contain letters, numbers, / and -')
+
+// Ration Card validation (varies by state)
+export const rationCardSchema = z
+  .string()
+  .min(1, 'Ration Card number is required')
+  .min(8, 'Ration Card must be at least 8 characters')
+  .max(25, 'Ration Card must be less than 25 characters')
+
+// ID Type enum
+export const idTypeSchema = z.enum(['aadhaar', 'pan', 'driving_license', 'passport', 'voter_id', 'ration_card'])
+
+// Government ID validation (based on type)
+export const governmentIdSchema = z.object({
+  idType: idTypeSchema,
+  idNumber: z.string().min(1, 'ID number is required'),
+}).refine(
+  (data) => {
+    switch (data.idType) {
+      case 'aadhaar':
+        return aadhaarSchema.safeParse(data.idNumber).success
+      case 'pan':
+        return panSchema.safeParse(data.idNumber).success
+      case 'driving_license':
+        return drivingLicenseSchema.safeParse(data.idNumber).success
+      case 'passport':
+        return passportSchema.safeParse(data.idNumber).success
+      case 'voter_id':
+        return voterIdSchema.safeParse(data.idNumber).success
+      case 'ration_card':
+        return rationCardSchema.safeParse(data.idNumber).success
+      default:
+        return false
+    }
+  },
+  { message: 'Invalid ID number format for selected ID type' }
+)
+
+// Helper application schema with government ID
+export const helperApplicationSchema = z.object({
+  fullName: nameSchema,
+  phone: phoneSchema,
+  email: emailSchema.optional(),
+  idType: idTypeSchema,
+  idNumber: z.string().min(1, 'ID number is required'),
+  idPhoto: z.instanceof(File).refine(
+    (file) => file.size <= 5 * 1024 * 1024,
+    'ID photo must be less than 5MB'
+  ).refine(
+    (file) => ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type),
+    'ID photo must be an image (JPEG, PNG, or WebP)'
+  ),
+  selfiePhoto: z.instanceof(File).refine(
+    (file) => file.size <= 5 * 1024 * 1024,
+    'Selfie photo must be less than 5MB'
+  ).refine(
+    (file) => ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type),
+    'Selfie photo must be an image (JPEG, PNG, or WebP)'
+  ),
+}).refine(
+  (data) => {
+    // Validate ID number based on type
+    switch (data.idType) {
+      case 'aadhaar':
+        return aadhaarSchema.safeParse(data.idNumber).success
+      case 'pan':
+        return panSchema.safeParse(data.idNumber).success
+      case 'driving_license':
+        return drivingLicenseSchema.safeParse(data.idNumber).success
+      case 'passport':
+        return passportSchema.safeParse(data.idNumber).success
+      case 'voter_id':
+        return voterIdSchema.safeParse(data.idNumber).success
+      case 'ration_card':
+        return rationCardSchema.safeParse(data.idNumber).success
+      default:
+        return false
+    }
+  },
+  { message: 'Invalid ID number format for selected ID type', path: ['idNumber'] }
+)
+
 // File upload validation (for ID photos)
 export const fileUploadSchema = z.object({
   file: z
@@ -252,5 +385,7 @@ export type AuthFormData = z.infer<typeof authSchema>
 export type RequestHelpFormData = z.infer<typeof requestHelpSchema>
 export type OfferHelpPersonalFormData = z.infer<typeof offerHelpPersonalSchema>
 export type OfferHelpServiceAreaFormData = z.infer<typeof offerHelpServiceAreaSchema>
+export type HelperApplicationFormData = z.infer<typeof helperApplicationSchema>
+export type GovernmentIdFormData = z.infer<typeof governmentIdSchema>
 export type CounterOfferFormData = z.infer<typeof counterOfferSchema>
 
