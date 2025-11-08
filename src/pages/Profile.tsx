@@ -289,7 +289,7 @@ export default function Profile() {
                   {fieldErrors.location}
                 </div>
               )}
-              <LocationPicker onLocationSelect={handleLocationSelect} initialLocation={location} />
+              <LocationPicker onLocationSelect={handleLocationSelect} initialLocation={location || undefined} />
               {location && (
                 <div className="mt-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-green-600 dark:text-green-400" />
