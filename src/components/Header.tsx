@@ -2,8 +2,9 @@ import { Globe, LogOut, FileText, Menu, X, User } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LANGUAGES, LanguageCode } from '@/lib/constants'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '@/lib/supabase'
 import Button from './ui/Button'
 import ThemeToggle from './ThemeToggle'
 import Logo from './Logo'
@@ -13,7 +14,55 @@ export default function Header() {
   const { language, setLanguage, t } = useLanguage()
   const [showLangMenu, setShowLangMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const navigate = useNavigate()
+
+  // Load user avatar
+  useEffect(() => {
+    const loadAvatar = async () => {
+      if (!user) {
+        setAvatarUrl(null)
+        return
+      }
+
+      try {
+        // First check if user has avatar from Google OAuth (in user_metadata)
+        const googleAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture
+        
+        if (googleAvatar) {
+          setAvatarUrl(googleAvatar)
+          // Also save it to profiles table if not already there
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('avatar_url')
+            .eq('id', user.id)
+            .single()
+          
+          if (profile && !profile.avatar_url) {
+            await supabase
+              .from('profiles')
+              .update({ avatar_url: googleAvatar })
+              .eq('id', user.id)
+          }
+        } else {
+          // Check profiles table for avatar_url
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('avatar_url')
+            .eq('id', user.id)
+            .single()
+          
+          if (profile?.avatar_url) {
+            setAvatarUrl(profile.avatar_url)
+          }
+        }
+      } catch (err) {
+        console.error('Error loading avatar:', err)
+      }
+    }
+
+    loadAvatar()
+  }, [user])
 
   const handleSignOut = async () => {
     await signOut()
@@ -98,18 +147,29 @@ export default function Header() {
             </Button>
           )}
 
-          {/* Profile */}
+          {/* Profile Avatar/Icon */}
           {user && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={() => navigate('/profile')}
               aria-label="View profile"
-              className="flex items-center gap-2 min-h-[44px] text-foreground dark:text-white hover:text-foreground dark:hover:text-white"
+              className="flex items-center gap-2 min-h-[44px] min-w-[44px] rounded-full hover:bg-white/10 dark:hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-foreground dark:focus:ring-white focus:ring-offset-2 p-1"
             >
-              <User className="w-4 h-4 text-foreground dark:text-white" aria-hidden="true" />
-              <span className="hidden lg:inline">Profile</span>
-            </Button>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={user.user_metadata?.full_name || user.email || 'Profile'}
+                  className="w-8 h-8 rounded-full object-cover border-2 border-white/20 dark:border-white/10"
+                  onError={() => setAvatarUrl(null)}
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-foreground to-muted dark:from-white dark:to-gray-400 flex items-center justify-center border-2 border-white/20 dark:border-white/10">
+                  <User className="w-4 h-4 text-background dark:text-[#0A0A0A]" aria-hidden="true" />
+                </div>
+              )}
+              <span className="hidden lg:inline text-foreground dark:text-white font-medium">
+                {user.user_metadata?.full_name || user.email?.split('@')[0] || 'Profile'}
+              </span>
+            </button>
           )}
 
           {/* Sign Out */}
@@ -205,17 +265,34 @@ export default function Header() {
 
             {/* Profile Mobile */}
             {user && (
-              <Button
-                variant="ghost"
+              <button
                 onClick={() => {
                   navigate('/profile')
                   setShowMobileMenu(false)
                 }}
-                className="w-full justify-start min-h-[44px] text-foreground dark:text-white hover:text-foreground dark:hover:text-white"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 dark:hover:bg-white/10 transition-colors min-h-[44px] text-foreground dark:text-white"
               >
-                <User className="w-5 h-5 mr-3 text-foreground dark:text-white" />
-                <span>Profile</span>
-              </Button>
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={user.user_metadata?.full_name || user.email || 'Profile'}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-white/20 dark:border-white/10"
+                    onError={() => setAvatarUrl(null)}
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-foreground to-muted dark:from-white dark:to-gray-400 flex items-center justify-center border-2 border-white/20 dark:border-white/10">
+                    <User className="w-5 h-5 text-background dark:text-[#0A0A0A]" />
+                  </div>
+                )}
+                <div className="flex flex-col">
+                  <span className="font-medium text-sm">
+                    {user.user_metadata?.full_name || 'Profile'}
+                  </span>
+                  <span className="text-xs text-muted dark:text-gray-400">
+                    {user.email}
+                  </span>
+                </div>
+              </button>
             )}
 
             {/* Sign Out Mobile */}

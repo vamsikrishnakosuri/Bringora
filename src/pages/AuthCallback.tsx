@@ -19,11 +19,32 @@ export default function AuthCallback() {
     const handleAuthCallback = async () => {
       const { data, error } = await supabase.auth.getSession()
       if (data.session && !error) {
+        const user = data.session.user
+        
+        // Save Google avatar to profiles if available
+        const googleAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture
+        if (googleAvatar) {
+          try {
+            await supabase
+              .from('profiles')
+              .upsert({
+                id: user.id,
+                avatar_url: googleAvatar,
+                full_name: user.user_metadata?.full_name || user.user_metadata?.name || null,
+                email: user.email,
+              }, {
+                onConflict: 'id'
+              })
+          } catch (err) {
+            console.error('Error saving avatar:', err)
+          }
+        }
+
         // Check if profile is completed
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('profile_completed, full_name, phone, latitude, longitude')
-          .eq('id', data.session.user.id)
+          .eq('id', user.id)
           .single()
 
         // If profile doesn't exist or is incomplete, redirect to onboarding

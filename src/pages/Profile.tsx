@@ -7,7 +7,7 @@ import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import LocationPicker from '@/components/LocationPicker'
-import { User, Phone, Mail, MapPin, Save, ArrowLeft, CheckCircle } from 'lucide-react'
+import { User, Phone, Mail, MapPin, Save, ArrowLeft, CheckCircle, Camera } from 'lucide-react'
 import { nameSchema, phoneSchema, locationSchema } from '@/lib/validation'
 import { sanitizeInput, validatePhoneNumber, validateCoordinates } from '@/lib/security'
 import { useToast } from '@/components/ui/ToastContainer'
@@ -22,6 +22,7 @@ export default function Profile() {
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [location, setLocation] = useState<{ address: string; latitude: number; longitude: number } | null>(null)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
   const [error, setError] = useState('')
@@ -36,9 +37,15 @@ export default function Profile() {
 
     const fetchProfile = async () => {
       try {
+        // First check Google OAuth avatar
+        const googleAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture
+        if (googleAvatar) {
+          setAvatarUrl(googleAvatar)
+        }
+
         const { data, error: fetchError } = await supabase
           .from('profiles')
-          .select('full_name, phone, email, location, latitude, longitude')
+          .select('full_name, phone, email, location, latitude, longitude, avatar_url')
           .eq('id', user.id)
           .single()
 
@@ -53,6 +60,17 @@ export default function Profile() {
           setFullName(data.full_name || '')
           setPhone(data.phone || '')
           setEmail(data.email || user.email || '')
+          
+          // Set avatar from profile if not already set from Google
+          if (!avatarUrl && data.avatar_url) {
+            setAvatarUrl(data.avatar_url)
+          } else if (googleAvatar && !data.avatar_url) {
+            // Save Google avatar to profile if not saved
+            await supabase
+              .from('profiles')
+              .update({ avatar_url: googleAvatar })
+              .eq('id', user.id)
+          }
           
           if (data.latitude && data.longitude && data.location) {
             setLocation({
@@ -194,8 +212,38 @@ export default function Profile() {
 
         <Card className="backdrop-blur-xl bg-white/80 dark:bg-[#1A1A1A]/80 border-white/20 dark:border-white/10">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2 dark:text-white tracking-tight">Profile Settings</h1>
-            <p className="text-muted dark:text-gray-400">
+            {/* Profile Avatar Display */}
+            <div className="flex items-center gap-4 mb-6">
+              <div className="relative">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={fullName || 'Profile'}
+                    className="w-20 h-20 rounded-full object-cover border-4 border-white/20 dark:border-white/10 shadow-lg"
+                    onError={() => setAvatarUrl(null)}
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-foreground to-muted dark:from-white dark:to-gray-400 flex items-center justify-center border-4 border-white/20 dark:border-white/10 shadow-lg">
+                    <User className="w-10 h-10 text-background dark:text-[#0A0A0A]" />
+                  </div>
+                )}
+                {user.user_metadata?.provider === 'google' && (
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white dark:border-[#1A1A1A] flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">G</span>
+                  </div>
+                )}
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold dark:text-white tracking-tight">
+                  {fullName || 'Your Profile'}
+                </h1>
+                <p className="text-muted dark:text-gray-400 text-sm">
+                  {email || user.email}
+                </p>
+              </div>
+            </div>
+            <h2 className="text-xl font-semibold mb-2 dark:text-white">Profile Settings</h2>
+            <p className="text-muted dark:text-gray-400 text-sm">
               Manage your account information and preferences
             </p>
           </div>
