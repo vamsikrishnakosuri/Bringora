@@ -5,7 +5,9 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { supabase } from '@/lib/supabase'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
-import { MapPin, Clock, Calendar, DollarSign, ShoppingBag, Phone, UserCheck, Eye } from 'lucide-react'
+import EmptyState from '@/components/EmptyState'
+import Skeleton from '@/components/ui/Skeleton'
+import { MapPin, Clock, Calendar, DollarSign, ShoppingBag, Phone, UserCheck, Eye, Search } from 'lucide-react'
 import { calculateDistance } from '@/lib/utils'
 
 interface HelpRequest {
@@ -194,11 +196,26 @@ export default function BrowseRequests() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-12 px-4">
         <div className="container mx-auto max-w-7xl">
-          <div className="text-center py-20">
-            <div className="inline-block">
-              <div className="w-16 h-16 border-4 border-muted dark:border-muted border-t-foreground dark:border-t-foreground rounded-full animate-spin"></div>
-            </div>
-            <p className="text-muted dark:text-muted mt-6 text-lg">Loading nearby requests...</p>
+          <Skeleton variant="text" height={64} className="mb-4 max-w-2xl mx-auto" />
+          <Skeleton variant="text" height={24} width="60%" className="mb-12 max-w-xl mx-auto" />
+          <div className="space-y-6">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="overflow-hidden">
+                <div className="flex flex-col md:flex-row">
+                  <Skeleton variant="rectangular" width={320} height={256} className="md:w-80" />
+                  <div className="flex-1 p-6 md:p-8">
+                    <Skeleton variant="text" height={32} className="mb-4" />
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <Skeleton variant="text" height={60} />
+                      <Skeleton variant="text" height={60} />
+                      <Skeleton variant="text" height={60} />
+                      <Skeleton variant="text" height={60} />
+                    </div>
+                    <Skeleton variant="rectangular" height={48} />
+                  </div>
+                </div>
+              </Card>
+            ))}
           </div>
         </div>
       </div>
@@ -219,14 +236,13 @@ export default function BrowseRequests() {
         </div>
 
         {requests.length === 0 ? (
-          <Card className="text-center py-16 backdrop-blur-xl bg-white/80 dark:bg-[#1A1A1A]/80 border-white/20 dark:border-white/10">
-            <p className="text-muted dark:text-gray-300 text-lg mb-6">
-              No help requests available at the moment.
-            </p>
-            <Button onClick={() => navigate('/')} variant="outline">
-              Go to Homepage
-            </Button>
-          </Card>
+          <EmptyState
+            icon={<Search className="w-10 h-10 text-muted dark:text-gray-400" />}
+            title="No Requests Available"
+            description="There are no help requests in your area at the moment. Check back later or create your own request to get help."
+            actionLabel="Go to Homepage"
+            onAction={() => navigate('/')}
+          />
         ) : (
           <div className="space-y-6">
             {requests.map((request) => {

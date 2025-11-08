@@ -13,6 +13,7 @@ import BrowseRequests from './pages/BrowseRequests'
 import Onboarding from './pages/Onboarding'
 import AdminDashboard from './pages/AdminDashboard'
 import ProfileCheck from './components/ProfileCheck'
+import { ToastProvider } from './components/ui/ToastContainer'
 import { useEffect } from 'react'
 
 function AppContent() {
@@ -25,8 +26,16 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-background dark:bg-background-dark">
+      {/* Skip to main content for accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-foreground focus:text-background focus:rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2"
+      >
+        Skip to main content
+      </a>
       <Header />
-      <Routes>
+      <main id="main-content">
+        <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
@@ -36,7 +45,8 @@ function AppContent() {
         <Route path="/my-requests" element={<ProfileCheck><MyRequests /></ProfileCheck>} />
         <Route path="/browse-requests" element={<ProfileCheck><BrowseRequests /></ProfileCheck>} />
         <Route path="/admin" element={<AdminDashboard />} />
-      </Routes>
+        </Routes>
+      </main>
     </div>
   )
 }
@@ -46,9 +56,11 @@ function App() {
     <ThemeProvider>
       <LanguageProvider>
         <AuthProvider>
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
+          <ToastProvider>
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          </ToastProvider>
         </AuthProvider>
       </LanguageProvider>
     </ThemeProvider>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useToast } from '@/components/ui/ToastContainer'
 import { supabase } from '@/lib/supabase'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
@@ -34,6 +35,7 @@ export default function RequestHelp() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { t } = useLanguage()
+  const { showToast } = useToast()
 
   const [step, setStep] = useState<'form' | 'summary'>('form')
   const [category, setCategory] = useState('')
@@ -53,6 +55,9 @@ export default function RequestHelp() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [profileLoaded, setProfileLoaded] = useState(false)
+  
+  // Field-level validation errors
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
   if (!user) {
     navigate('/auth?redirect=/request-help')
@@ -142,10 +147,16 @@ export default function RequestHelp() {
 
       if (insertError) throw insertError
 
+      showToast('Request submitted successfully!', 'success')
+      
       // Navigate to my requests page to see the submitted request
-      navigate('/my-requests')
+      setTimeout(() => {
+        navigate('/my-requests')
+      }, 1000)
     } catch (err: any) {
-      setError(err.message || 'Failed to submit request')
+      const errorMessage = err.message || 'Failed to submit request'
+      setError(errorMessage)
+      showToast(errorMessage, 'error')
     } finally {
       setLoading(false)
     }
@@ -280,10 +291,10 @@ export default function RequestHelp() {
             <Button
               type="button"
               onClick={handleFinalSubmit}
-              disabled={loading}
+              loading={loading}
               className="flex-1"
             >
-              {loading ? 'Submitting...' : 'Submit Request'}
+              Submit Request
             </Button>
           </div>
         </div>
@@ -311,11 +322,23 @@ export default function RequestHelp() {
               <h2 className="text-xl font-semibold mb-4 dark:text-white">Service Details</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2 dark:text-white">Category/Requirement</label>
+                  <label htmlFor="category-select" className="block text-sm font-medium mb-2 dark:text-white">
+                    Category/Requirement <span className="text-red-500" aria-label="required">*</span>
+                  </label>
                   <select
+                    id="category-select"
                     value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="flex h-10 w-full rounded-lg border border-white/20 dark:border-white/10 bg-white/80 dark:bg-[#1A1A1A]/80 px-3 py-2 text-sm text-foreground dark:text-white focus:outline-none focus:ring-2 focus:ring-foreground dark:focus:ring-white/20"
+                    onChange={(e) => {
+                      setCategory(e.target.value)
+                      if (fieldErrors.category) setFieldErrors({ ...fieldErrors, category: '' })
+                    }}
+                    aria-invalid={!!fieldErrors.category}
+                    aria-describedby={fieldErrors.category ? 'category-error' : undefined}
+                    className={`flex h-10 w-full rounded-lg border bg-white/80 dark:bg-[#1A1A1A]/80 px-3 py-2 text-sm text-foreground dark:text-white focus:outline-none focus:ring-2 focus:ring-foreground dark:focus:ring-white/20 transition-all ${
+                      fieldErrors.category
+                        ? 'border-red-500 dark:border-red-500 focus:ring-red-500'
+                        : 'border-white/20 dark:border-white/10'
+                    }`}
                     required
                   >
                     <option value="">Select category</option>
@@ -326,41 +349,55 @@ export default function RequestHelp() {
                     <option value="repairs">Repairs</option>
                     <option value="tutoring">Tutoring</option>
                     <option value="pet-care">Pet Care</option>
+                    <option value="groceries">Groceries</option>
                     <option value="other">Other</option>
                   </select>
+                  {fieldErrors.category && (
+                    <p id="category-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
+                      {fieldErrors.category}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2 dark:text-white">Date</label>
-                    <Input
-                      type="date"
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2 dark:text-white">Time</label>
-                    <Input
-                      type="time"
-                      value={time}
-                      onChange={(e) => setTime(e.target.value)}
-                      required
-                    />
-                  </div>
+                  <Input
+                    type="date"
+                    label="Date"
+                    value={date}
+                    onChange={(e) => {
+                      setDate(e.target.value)
+                      if (fieldErrors.date) setFieldErrors({ ...fieldErrors, date: '' })
+                    }}
+                    error={fieldErrors.date}
+                    required
+                  />
+                  <Input
+                    type="time"
+                    label="Time"
+                    value={time}
+                    onChange={(e) => {
+                      setTime(e.target.value)
+                      if (fieldErrors.time) setFieldErrors({ ...fieldErrors, time: '' })
+                    }}
+                    error={fieldErrors.time}
+                    required
+                  />
                 </div>
 
                 <div className="flex gap-4">
                   <div className="flex-1">
-                    <label className="block text-sm font-medium mb-2 dark:text-white">Duration</label>
                     <Input
                       type="number"
+                      label="Duration"
                       value={duration}
-                      onChange={(e) => setDuration(e.target.value)}
+                      onChange={(e) => {
+                        setDuration(e.target.value)
+                        if (fieldErrors.duration) setFieldErrors({ ...fieldErrors, duration: '' })
+                      }}
                       placeholder="e.g., 2"
                       min="0.5"
                       step="0.5"
+                      error={fieldErrors.duration}
                       required
                     />
                   </div>
@@ -383,33 +420,37 @@ export default function RequestHelp() {
             <div>
               <h2 className="text-xl font-semibold mb-4 dark:text-white">Contact Information</h2>
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2 dark:text-white">Full Name</label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted dark:text-gray-400" />
-                    <Input
-                      type="text"
-                      value={requesterName}
-                      onChange={(e) => setRequesterName(e.target.value)}
-                      placeholder="Your full name"
-                      className="pl-10"
-                      required
-                    />
-                  </div>
+                <div className="relative">
+                  <User className="absolute left-3 top-[2.75rem] transform -translate-y-1/2 w-5 h-5 text-muted dark:text-gray-400 z-10 pointer-events-none" />
+                  <Input
+                    type="text"
+                    label="Full Name"
+                    value={requesterName}
+                    onChange={(e) => {
+                      setRequesterName(e.target.value)
+                      if (fieldErrors.requesterName) setFieldErrors({ ...fieldErrors, requesterName: '' })
+                    }}
+                    placeholder="Your full name"
+                    className="pl-10"
+                    error={fieldErrors.requesterName}
+                    required
+                  />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2 dark:text-white">Phone Number</label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted dark:text-gray-400" />
-                    <Input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+91 1234567890"
-                      className="pl-10"
-                      required
-                    />
-                  </div>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-[2.75rem] transform -translate-y-1/2 w-5 h-5 text-muted dark:text-gray-400 z-10 pointer-events-none" />
+                  <Input
+                    type="tel"
+                    label="Phone Number"
+                    value={phone}
+                    onChange={(e) => {
+                      setPhone(e.target.value)
+                      if (fieldErrors.phone) setFieldErrors({ ...fieldErrors, phone: '' })
+                    }}
+                    placeholder="+91 1234567890"
+                    className="pl-10"
+                    error={fieldErrors.phone}
+                    required
+                  />
                 </div>
               </div>
             </div>
@@ -418,9 +459,17 @@ export default function RequestHelp() {
             <div>
               <h2 className="text-xl font-semibold mb-4 dark:text-white">Location Details</h2>
               <LocationPicker 
-                onLocationSelect={handleLocationSelect} 
+                onLocationSelect={(loc) => {
+                  handleLocationSelect(loc)
+                  if (fieldErrors.location) setFieldErrors({ ...fieldErrors, location: '' })
+                }} 
                 initialLocation={location || undefined}
               />
+              {fieldErrors.location && (
+                <p className="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">
+                  {fieldErrors.location}
+                </p>
+              )}
             </div>
 
             {/* Payment Details */}
@@ -453,72 +502,80 @@ export default function RequestHelp() {
                 </div>
 
                 {paymentType === 'fixed' ? (
-                  <div>
-                    <label className="block text-sm font-medium mb-2 dark:text-white">Amount (₹)</label>
-                    <Input
-                      type="number"
-                      value={fixedAmount}
-                      onChange={(e) => setFixedAmount(e.target.value)}
-                      placeholder="e.g., 500"
-                      min="0"
-                      step="50"
-                      required
-                    />
-                  </div>
+                  <Input
+                    type="number"
+                    label="Amount (₹)"
+                    value={fixedAmount}
+                    onChange={(e) => {
+                      setFixedAmount(e.target.value)
+                      if (fieldErrors.fixedAmount) setFieldErrors({ ...fieldErrors, fixedAmount: '' })
+                    }}
+                    placeholder="e.g., 500"
+                    min="0"
+                    step="50"
+                    error={fieldErrors.fixedAmount}
+                    required
+                  />
                 ) : (
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2 dark:text-white">Minimum (₹)</label>
-                      <Input
-                        type="number"
-                        value={minAmount}
-                        onChange={(e) => setMinAmount(e.target.value)}
-                        placeholder="e.g., 300"
-                        min="0"
-                        step="50"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2 dark:text-white">Maximum (₹)</label>
-                      <Input
-                        type="number"
-                        value={maxAmount}
-                        onChange={(e) => setMaxAmount(e.target.value)}
-                        placeholder="e.g., 600"
-                        min="0"
-                        step="50"
-                        required
-                      />
-                    </div>
+                    <Input
+                      type="number"
+                      label="Minimum (₹)"
+                      value={minAmount}
+                      onChange={(e) => {
+                        setMinAmount(e.target.value)
+                        if (fieldErrors.minAmount) setFieldErrors({ ...fieldErrors, minAmount: '', maxAmount: '' })
+                      }}
+                      placeholder="e.g., 300"
+                      min="0"
+                      step="50"
+                      error={fieldErrors.minAmount}
+                      required
+                    />
+                    <Input
+                      type="number"
+                      label="Maximum (₹)"
+                      value={maxAmount}
+                      onChange={(e) => {
+                        setMaxAmount(e.target.value)
+                        if (fieldErrors.maxAmount) setFieldErrors({ ...fieldErrors, maxAmount: '' })
+                      }}
+                      placeholder="e.g., 600"
+                      min="0"
+                      step="50"
+                      error={fieldErrors.maxAmount}
+                      required
+                    />
                   </div>
                 )}
               </div>
             </div>
 
             {/* Preference Shop/Store */}
-            <div>
-              <label className="block text-sm font-medium mb-2 dark:text-white">Preferred Shop/Store/Place (Optional)</label>
-              <div className="relative">
-                <ShoppingBag className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted dark:text-gray-400" />
-                <Input
-                  type="text"
-                  value={preferenceShop}
-                  onChange={(e) => setPreferenceShop(e.target.value)}
-                  placeholder="e.g., Walmart, Local Market, Specific Address"
-                  className="pl-10"
-                />
-              </div>
+            <div className="relative">
+              <ShoppingBag className="absolute left-3 top-[2.75rem] transform -translate-y-1/2 w-5 h-5 text-muted dark:text-gray-400 z-10 pointer-events-none" />
+              <Input
+                type="text"
+                label="Preferred Shop/Store/Place (Optional)"
+                value={preferenceShop}
+                onChange={(e) => setPreferenceShop(e.target.value)}
+                placeholder="e.g., Walmart, Local Market, Specific Address"
+                className="pl-10"
+              />
             </div>
 
             {/* Additional Information */}
             <div>
-              <label className="block text-sm font-medium mb-2 dark:text-white">Additional Information (Optional)</label>
+              <label htmlFor="additional-info" className="block text-sm font-medium mb-2 dark:text-white">
+                Additional Information (Optional)
+              </label>
               <textarea
+                id="additional-info"
                 value={additionalInfo}
                 onChange={(e) => setAdditionalInfo(e.target.value)}
                 placeholder="Any extra details, special instructions, or preferences..."
-                className="flex min-h-[120px] w-full rounded-lg border border-white/20 dark:border-white/10 bg-white/80 dark:bg-[#1A1A1A]/80 px-3 py-2 text-sm text-foreground dark:text-white placeholder:text-muted dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-foreground dark:focus:ring-white/20"
+                aria-label="Additional information"
+                className="flex min-h-[120px] w-full rounded-lg border border-white/20 dark:border-white/10 bg-white/80 dark:bg-[#1A1A1A]/80 px-3 py-2 text-sm text-foreground dark:text-white placeholder:text-muted dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-foreground dark:focus:ring-white/20 focus:ring-offset-2 transition-all"
               />
             </div>
 
@@ -531,7 +588,7 @@ export default function RequestHelp() {
               >
                 Cancel
               </Button>
-              <Button type="submit" className="flex-1">
+              <Button type="submit" className="flex-1" loading={loading}>
                 Continue to Summary
               </Button>
             </div>

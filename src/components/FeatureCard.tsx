@@ -50,14 +50,15 @@ export default function FeatureCard({
         </ul>
       </div>
 
-      <Button
-        onClick={onClick}
-        className="w-full group-hover:shadow-xl group-hover:shadow-foreground/20 dark:group-hover:shadow-white/10 transition-all duration-300 relative overflow-hidden backdrop-blur-sm border border-white/20 dark:border-white/10"
-      >
-        <span className="relative z-10">{buttonText}</span>
-        {/* Elegant shine effect on hover */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none"></div>
-      </Button>
+              <Button
+                onClick={onClick}
+                aria-label={`${buttonText} - ${title}`}
+                className="w-full group-hover:shadow-xl group-hover:shadow-foreground/20 dark:group-hover:shadow-white/10 transition-all duration-300 relative overflow-hidden backdrop-blur-sm border border-white/20 dark:border-white/10"
+              >
+                <span className="relative z-10">{buttonText}</span>
+                {/* Elegant shine effect on hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none" aria-hidden="true"></div>
+              </Button>
     </Card>
   )
 }

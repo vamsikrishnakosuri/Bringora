@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { supabase } from '@/lib/supabase'
 import Card from '@/components/ui/Card'
-import { MapPin, DollarSign, Calendar, Clock, ShoppingBag, Phone } from 'lucide-react'
+import EmptyState from '@/components/EmptyState'
+import Skeleton from '@/components/ui/Skeleton'
+import { MapPin, DollarSign, Calendar, Clock, ShoppingBag, Phone, FileText } from 'lucide-react'
 
 interface HelpRequest {
   id: string
@@ -40,6 +43,7 @@ const categoryImages: Record<string, string> = {
 }
 
 export default function MyRequests() {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const { t } = useLanguage()
   const [requests, setRequests] = useState<HelpRequest[]>([])
@@ -103,11 +107,16 @@ export default function MyRequests() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-12 px-4">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center py-12">
-            <div className="inline-block">
-              <div className="w-12 h-12 border-4 border-muted dark:border-muted border-t-foreground dark:border-t-foreground rounded-full animate-spin"></div>
-            </div>
-            <p className="text-muted dark:text-muted mt-4">Loading your requests...</p>
+          <Skeleton variant="text" height={48} className="mb-8 max-w-md mx-auto" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="overflow-hidden">
+                <Skeleton variant="rectangular" height={192} className="mb-4" />
+                <Skeleton variant="text" height={24} className="mb-2" />
+                <Skeleton variant="text" height={20} width="80%" className="mb-4" />
+                <Skeleton variant="text" height={16} width="60%" />
+              </Card>
+            ))}
           </div>
         </div>
       </div>
@@ -122,11 +131,13 @@ export default function MyRequests() {
         </h1>
 
         {requests.length === 0 ? (
-          <Card className="text-center py-12 backdrop-blur-xl bg-white/80 dark:bg-[#1A1A1A]/80 border-white/20 dark:border-white/10">
-            <p className="text-muted dark:text-gray-300 text-lg">
-              You haven't created any help requests yet.
-            </p>
-          </Card>
+          <EmptyState
+            icon={<FileText className="w-10 h-10 text-muted dark:text-gray-400" />}
+            title="No Requests Yet"
+            description="You haven't created any help requests. Start by creating your first request to get help from nearby helpers."
+            actionLabel="Create Request"
+            onAction={() => navigate('/request-help')}
+          />
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {requests.map((request) => {
