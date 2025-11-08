@@ -80,19 +80,17 @@ export default function BrowseRequests() {
         return
       }
 
-      // Fallback: try to get from user's recent request location
-      const { data: recentRequest } = await supabase
-        .from('help_requests')
+      // Fallback: try to get from user's profile location
+      const { data: profileData } = await supabase
+        .from('profiles')
         .select('latitude, longitude')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
+        .eq('id', user?.id)
         .single()
 
-      if (recentRequest?.latitude && recentRequest?.longitude) {
+      if (profileData?.latitude && profileData?.longitude) {
         setUserLocation({
-          latitude: recentRequest.latitude,
-          longitude: recentRequest.longitude,
+          latitude: profileData.latitude,
+          longitude: profileData.longitude,
         })
       }
     } catch (err) {
@@ -111,7 +109,11 @@ export default function BrowseRequests() {
 
       if (error) throw error
 
-      let processedRequests = (data || []).map((request) => {
+      // CRITICAL: Filter out requests created by the current user
+      // Users don't want to see their own requests when offering help
+      let filteredRequests = (data || []).filter((request) => request.user_id !== user?.id)
+
+      let processedRequests = filteredRequests.map((request) => {
         let distance: number | undefined
         if (userLocation && request.latitude && request.longitude) {
           distance = calculateDistance(

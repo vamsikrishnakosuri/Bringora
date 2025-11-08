@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -52,11 +52,47 @@ export default function RequestHelp() {
   const [additionalInfo, setAdditionalInfo] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [profileLoaded, setProfileLoaded] = useState(false)
 
   if (!user) {
     navigate('/auth?redirect=/request-help')
     return null
   }
+
+  // Auto-fill from profile on mount
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('full_name, phone, location, latitude, longitude')
+          .eq('id', user.id)
+          .single()
+
+        if (error) throw error
+
+        if (data) {
+          if (data.full_name && !requesterName) setRequesterName(data.full_name)
+          if (data.phone && !phone) setPhone(data.phone)
+          if (data.location && data.latitude && data.longitude && !location) {
+            setLocation({
+              address: data.location,
+              latitude: data.latitude,
+              longitude: data.longitude,
+            })
+          }
+        }
+        setProfileLoaded(true)
+      } catch (err) {
+        console.error('Error loading profile:', err)
+        setProfileLoaded(true)
+      }
+    }
+
+    if (user) {
+      loadProfile()
+    }
+  }, [user])
 
   const handleLocationSelect = (loc: { address: string; latitude: number; longitude: number }) => {
     setLocation(loc)
@@ -106,8 +142,8 @@ export default function RequestHelp() {
 
       if (insertError) throw insertError
 
-      // Navigate to browse requests page to see the submitted request
-      navigate('/browse-requests')
+      // Navigate to my requests page to see the submitted request
+      navigate('/my-requests')
     } catch (err: any) {
       setError(err.message || 'Failed to submit request')
     } finally {

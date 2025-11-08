@@ -10,7 +10,9 @@ import RequestHelp from './pages/RequestHelp'
 import OfferHelp from './pages/OfferHelp'
 import MyRequests from './pages/MyRequests'
 import BrowseRequests from './pages/BrowseRequests'
+import Onboarding from './pages/Onboarding'
 import AdminDashboard from './pages/AdminDashboard'
+import ProfileCheck from './components/ProfileCheck'
 import { useEffect } from 'react'
 
 function AppContent() {
@@ -28,10 +30,11 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/request-help" element={<RequestHelp />} />
-        <Route path="/offer-help" element={<OfferHelp />} />
-        <Route path="/my-requests" element={<MyRequests />} />
-        <Route path="/browse-requests" element={<BrowseRequests />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/request-help" element={<ProfileCheck><RequestHelp /></ProfileCheck>} />
+        <Route path="/offer-help" element={<ProfileCheck><OfferHelp /></ProfileCheck>} />
+        <Route path="/my-requests" element={<ProfileCheck><MyRequests /></ProfileCheck>} />
+        <Route path="/browse-requests" element={<ProfileCheck><BrowseRequests /></ProfileCheck>} />
         <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </div>

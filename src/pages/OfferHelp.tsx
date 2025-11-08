@@ -81,8 +81,11 @@ export default function OfferHelp() {
 
       if (error) throw error
       
+      // CRITICAL: Filter out requests created by the current user
+      // Users don't want to see their own requests when offering help
+      let filteredRequests = (data || []).filter((request) => request.user_id !== user?.id)
+      
       // Filter by distance if helper location is set
-      let filteredRequests = data || []
       if (helperLocation && helperLocation.service_latitude && helperLocation.service_longitude) {
         filteredRequests = filteredRequests
           .filter((request) => {
