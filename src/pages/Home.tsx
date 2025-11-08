@@ -33,6 +33,11 @@ export default function Home() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 relative z-10">
         <PaymentWarningBanner />
         <div className="text-center mb-8 sm:mb-12 lg:mb-16 animate-fade-in">
+          <div className="mb-4">
+            <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+              ✨ Latest Update: Auto-Deploy Test - v1.0.2
+            </span>
+          </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 animate-slide-up tracking-tight px-2">
             <span className="gradient-text dark:text-foreground dark:bg-gradient-to-r dark:from-white dark:via-gray-200 dark:to-white dark:bg-clip-text dark:text-transparent">
               {t('app.tagline')}
