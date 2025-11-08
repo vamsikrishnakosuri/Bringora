@@ -12,6 +12,7 @@ import MyRequests from './pages/MyRequests'
 import BrowseRequests from './pages/BrowseRequests'
 import Onboarding from './pages/Onboarding'
 import AdminDashboard from './pages/AdminDashboard'
+import TermsAndConditions from './pages/TermsAndConditions'
 import ProfileCheck from './components/ProfileCheck'
 import { ToastProvider } from './components/ui/ToastContainer'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -47,6 +48,7 @@ function AppContent() {
         <Route path="/my-requests" element={<ProfileCheck><MyRequests /></ProfileCheck>} />
         <Route path="/browse-requests" element={<ProfileCheck><BrowseRequests /></ProfileCheck>} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/terms" element={<TermsAndConditions />} />
         </Routes>
         <InstallPrompt />
       </main>

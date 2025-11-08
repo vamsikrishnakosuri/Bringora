@@ -279,6 +279,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
       <div 
         className="relative h-48 sm:h-56 md:h-64 rounded-lg overflow-hidden border border-white/20 dark:border-white/10"
         onClick={() => setShowSuggestions(false)} // Hide suggestions when clicking on map
+        style={{ minHeight: '192px' }} // Ensure minimum height on mobile
       >
         <Map
           {...viewState}
@@ -289,8 +290,10 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
             handleMapClick(e)
           }}
           mapboxAccessToken={MAPBOX_TOKEN}
-          style={{ width: '100%', height: '100%' }}
+          style={{ width: '100%', height: '100%', minHeight: '192px' }}
           mapStyle="mapbox://styles/mapbox/streets-v12"
+          reuseMaps={true}
+          antialias={true}
         >
           {selectedLocation && (
             <Marker

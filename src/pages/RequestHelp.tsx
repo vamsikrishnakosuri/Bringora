@@ -8,6 +8,7 @@ import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import LocationPicker from '@/components/LocationPicker'
+import PaymentWarningBanner from '@/components/PaymentWarningBanner'
 import { FileText, Phone, Calendar, Clock, DollarSign, MapPin, User, ShoppingBag, MessageSquare, Mail } from 'lucide-react'
 import { 
   categorySchema, 
@@ -485,6 +486,7 @@ export default function RequestHelp() {
         </h1>
 
         <Card className="backdrop-blur-xl bg-white/80 dark:bg-[#1A1A1A]/80 border-white/20 dark:border-white/10">
+          <PaymentWarningBanner />
           {error && (
             <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 dark:border dark:border-red-800/50 text-red-600 dark:text-red-300 text-sm">
               {error}
@@ -494,11 +496,11 @@ export default function RequestHelp() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Service Details */}
             <div>
-              <h2 className="text-xl font-semibold mb-4 dark:text-white">Service Details</h2>
+              <h2 className="text-xl font-semibold mb-4 dark:text-white">{t('form.serviceDetails')}</h2>
               <div className="space-y-4">
                 <div>
                   <label htmlFor="category-select" className="block text-sm font-medium mb-2 dark:text-white">
-                    Category/Requirement <span className="text-red-500" aria-label="required">*</span>
+                    {t('form.category')} <span className="text-red-500" aria-label="required">*</span>
                   </label>
                   <select
                     id="category-select"
@@ -516,7 +518,7 @@ export default function RequestHelp() {
                     }`}
                     required
                   >
-                    <option value="">Select category</option>
+                    <option value="">{t('form.selectCategory')}</option>
                     <option value="cleaning">Cleaning</option>
                     <option value="cooking">Cooking</option>
                     <option value="delivery">Delivery</option>
@@ -537,7 +539,7 @@ export default function RequestHelp() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
                     type="date"
-                    label="Date"
+                    label={t('form.date')}
                     value={date}
                     onChange={(e) => {
                       setDate(e.target.value)
@@ -548,7 +550,7 @@ export default function RequestHelp() {
                   />
                   <Input
                     type="time"
-                    label="Time"
+                    label={t('form.time')}
                     value={time}
                     onChange={(e) => {
                       setTime(e.target.value)
@@ -563,13 +565,13 @@ export default function RequestHelp() {
                   <div className="flex-1">
                     <Input
                       type="number"
-                      label="Duration"
+                      label={t('form.duration')}
                       value={duration}
                       onChange={(e) => {
                         setDuration(e.target.value)
                         if (fieldErrors.duration) setFieldErrors({ ...fieldErrors, duration: '' })
                       }}
-                      placeholder="e.g., 2"
+                      placeholder={t('form.enterDuration')}
                       min="0.5"
                       step="0.5"
                       error={fieldErrors.duration}
@@ -577,14 +579,14 @@ export default function RequestHelp() {
                     />
                   </div>
                   <div className="w-full sm:w-32">
-                    <label className="block text-sm font-medium mb-2 dark:text-white">Unit</label>
+                    <label className="block text-sm font-medium mb-2 dark:text-white">{t('form.unit')}</label>
                     <select
                       value={durationUnit}
                       onChange={(e) => setDurationUnit(e.target.value)}
                       className="flex h-10 w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white/80 dark:bg-[#1A1A1A]/80 px-3 py-2 text-sm text-foreground dark:text-white focus:outline-none focus:ring-2 focus:ring-foreground dark:focus:ring-white/20 focus:border-gray-400 dark:focus:border-white/20 transition-all min-h-[44px]"
                     >
-                      <option value="hours">Hours</option>
-                      <option value="minutes">Minutes</option>
+                      <option value="hours">{t('form.hours')}</option>
+                      <option value="minutes">{t('form.minutes')}</option>
                     </select>
                   </div>
                 </div>
@@ -593,19 +595,19 @@ export default function RequestHelp() {
 
             {/* Contact Information */}
             <div>
-              <h2 className="text-xl font-semibold mb-4 dark:text-white">Contact Information</h2>
+              <h2 className="text-xl font-semibold mb-4 dark:text-white">{t('form.contactInformation')}</h2>
               <div className="space-y-4">
                 <div className="relative">
                   <User className="absolute left-3 top-[2.75rem] transform -translate-y-1/2 w-5 h-5 text-muted dark:text-gray-400 z-10 pointer-events-none" />
                   <Input
                     type="text"
-                    label="Full Name"
+                    label={t('form.fullName')}
                     value={requesterName}
                     onChange={(e) => {
                       setRequesterName(e.target.value)
                       if (fieldErrors.requesterName) setFieldErrors({ ...fieldErrors, requesterName: '' })
                     }}
-                    placeholder="Your full name"
+                    placeholder={t('form.enterName')}
                     className="pl-10"
                     error={fieldErrors.requesterName}
                     required
@@ -615,13 +617,13 @@ export default function RequestHelp() {
                   <Phone className="absolute left-3 top-[2.75rem] transform -translate-y-1/2 w-5 h-5 text-muted dark:text-gray-400 z-10 pointer-events-none" />
                   <Input
                     type="tel"
-                    label="Phone Number"
+                    label={t('form.phone')}
                     value={phone}
                     onChange={(e) => {
                       setPhone(e.target.value)
                       if (fieldErrors.phone) setFieldErrors({ ...fieldErrors, phone: '' })
                     }}
-                    placeholder="+91 1234567890"
+                    placeholder={t('form.enterPhone')}
                     className="pl-10"
                     error={fieldErrors.phone}
                     required
@@ -631,7 +633,7 @@ export default function RequestHelp() {
                 {/* Preferred Contact Methods */}
                 <div>
                   <label className="block text-sm font-medium mb-2 dark:text-white">
-                    Preferred Contact Methods <span className="text-red-500">*</span>
+                    {t('form.contactMethods')} <span className="text-red-500">*</span>
                   </label>
                   <p className="text-xs text-muted dark:text-gray-400 mb-3">
                     Select how helpers can contact you
@@ -674,7 +676,7 @@ export default function RequestHelp() {
 
             {/* Location Details */}
             <div>
-              <h2 className="text-xl font-semibold mb-4 dark:text-white">Location Details</h2>
+              <h2 className="text-xl font-semibold mb-4 dark:text-white">{t('form.locationDetails')}</h2>
               <LocationPicker 
                 onLocationSelect={(loc) => {
                   handleLocationSelect(loc)
@@ -691,7 +693,7 @@ export default function RequestHelp() {
 
             {/* Payment Details */}
             <div>
-              <h2 className="text-xl font-semibold mb-4 dark:text-white">Payment Details</h2>
+              <h2 className="text-xl font-semibold mb-4 dark:text-white">{t('form.paymentDetails')}</h2>
               <div className="space-y-4">
                 <div className="flex gap-4">
                   <button
@@ -703,7 +705,7 @@ export default function RequestHelp() {
                         : 'bg-white/10 dark:bg-white/5 border-white/20 dark:border-white/10 text-foreground dark:text-white'
                     }`}
                   >
-                    Fixed Payment
+                    {t('form.fixedAmount')}
                   </button>
                   <button
                     type="button"
@@ -714,7 +716,7 @@ export default function RequestHelp() {
                         : 'bg-white/10 dark:bg-white/5 border-white/20 dark:border-white/10 text-foreground dark:text-white'
                     }`}
                   >
-                    Payment Range
+                    {t('form.minAmount')} - {t('form.maxAmount')}
                   </button>
                 </div>
 

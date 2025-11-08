@@ -8,6 +8,14 @@ Your logo is here: `src/Logo.png`
 1. **icon-192x192.png** - 192 pixels wide × 192 pixels tall
 2. **icon-512x512.png** - 512 pixels wide × 512 pixels tall
 
+## 🎨 Using Adobe Express?
+
+**If you're using Adobe Express** (which doesn't allow exact pixel sizes):
+1. **Create your design** as large as possible in Adobe Express
+2. **Download** the large version
+3. **Use ILoveIMG** (https://www.iloveimg.com/resize-image) to resize to exact 192×192 and 512×512
+4. See `ADOBE_EXPRESS_ICON_GUIDE.md` for detailed Adobe Express instructions
+
 ## 📝 Method 1: Using ILoveIMG (Easiest - 5 minutes)
 
 ### Step 1: Go to Website

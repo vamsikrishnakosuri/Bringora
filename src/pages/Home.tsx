@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import FeatureCard from '@/components/FeatureCard'
 import AnimatedBackground from '@/components/AnimatedBackground'
+import PaymentWarningBanner from '@/components/PaymentWarningBanner'
 import { Phone, HeartHandshake } from 'lucide-react'
 
 export default function Home() {
@@ -30,6 +31,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] relative overflow-hidden">
       <AnimatedBackground />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 relative z-10">
+        <PaymentWarningBanner />
         <div className="text-center mb-8 sm:mb-12 lg:mb-16 animate-fade-in">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 animate-slide-up tracking-tight px-2">
             <span className="gradient-text dark:text-foreground dark:bg-gradient-to-r dark:from-white dark:via-gray-200 dark:to-white dark:bg-clip-text dark:text-transparent">
