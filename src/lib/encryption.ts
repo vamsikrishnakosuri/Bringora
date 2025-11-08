@@ -34,10 +34,13 @@ export async function deriveKeyFromPassword(
     ['deriveBits', 'deriveKey']
   )
 
+  // Ensure salt is a proper ArrayBuffer (create new ArrayBuffer from Uint8Array)
+  const saltBuffer = new Uint8Array(salt).buffer
+
   return await crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: salt,
+      salt: saltBuffer,
       iterations: 100000,
       hash: 'SHA-256',
     },
@@ -70,10 +73,13 @@ export async function encryptMessage(
   const data = encoder.encode(message)
   const iv = generateIV()
 
+  // Ensure iv is a proper ArrayBuffer (create new ArrayBuffer from Uint8Array)
+  const ivBuffer = new Uint8Array(iv).buffer
+
   const encrypted = await crypto.subtle.encrypt(
     {
       name: 'AES-GCM',
-      iv: iv,
+      iv: ivBuffer,
       tagLength: 128, // 128-bit authentication tag
     },
     key,
@@ -109,10 +115,13 @@ export async function decryptMessage(
   )
   const ivArray = Uint8Array.from(atob(iv), (c) => c.charCodeAt(0))
 
+  // Ensure ivArray is a proper ArrayBuffer (create new ArrayBuffer from Uint8Array)
+  const ivBuffer = new Uint8Array(ivArray).buffer
+
   const decrypted = await crypto.subtle.decrypt(
     {
       name: 'AES-GCM',
-      iv: ivArray,
+      iv: ivBuffer,
       tagLength: 128,
     },
     key,
