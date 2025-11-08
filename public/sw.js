@@ -43,11 +43,16 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Skip Supabase and Mapbox API calls (always use network)
+  // Skip external API calls and resources (always use network, don't cache)
+  // This prevents CSP violations and chrome-extension errors
+  const url = new URL(event.request.url)
   if (
     event.request.url.includes('supabase.co') ||
     event.request.url.includes('mapbox.com') ||
-    event.request.url.includes('googleapis.com')
+    event.request.url.includes('googleapis.com') ||
+    event.request.url.includes('fonts.gstatic.com') ||
+    event.request.url.includes('chrome-extension://') ||
+    (url.origin !== self.location.origin && url.protocol.startsWith('http'))
   ) {
     return
   }
