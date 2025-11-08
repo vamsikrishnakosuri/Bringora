@@ -519,10 +519,9 @@ export default function BrowseRequests() {
         <ContactModal
           isOpen={contactModal.isOpen}
           onClose={() => setContactModal({ isOpen: false, request: null })}
-          phone={contactModal.request.phone}
-          email={contactModal.request.requester_email}
-          requesterName={contactModal.request.requester_name}
-          preferredMethods={contactModal.request.preferred_contact_methods || ['call', 'message', 'email']}
+          recipientId={contactModal.request.user_id}
+          recipientName={contactModal.request.requester_name || 'Requester'}
+          helpRequestId={contactModal.request.id}
         />
       )}
     </div>
