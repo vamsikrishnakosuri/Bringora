@@ -24,6 +24,14 @@ function AppContent() {
   const location = useLocation()
 
   useEffect(() => {
+    // Handle OAuth callback with hash fragments on root path
+    // Supabase sometimes redirects to /#access_token=... instead of /auth/callback
+    if (location.pathname === '/' && window.location.hash.includes('access_token')) {
+      // Redirect to /auth/callback with the hash
+      window.location.href = `/auth/callback${window.location.hash}`
+      return
+    }
+
     // Smooth scroll to top on route change
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [location.pathname])

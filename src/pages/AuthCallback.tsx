@@ -21,13 +21,28 @@ export default function AuthCallback() {
         // Handle OAuth callback with hash fragments
         // Supabase redirects with hash fragments that need to be processed
         const hashParams = new URLSearchParams(window.location.hash.substring(1))
+        
         if (hashParams.has('access_token')) {
-          // Supabase will automatically handle this via getSession
-          // Just wait for it to process
-          await new Promise(resolve => setTimeout(resolve, 1000))
+          // Supabase needs to process the hash fragment
+          // Use onAuthStateChange to wait for the session to be established
+          await new Promise<void>((resolve) => {
+            const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+              if (event === 'SIGNED_IN' && session) {
+                subscription.unsubscribe()
+                resolve()
+              }
+            })
+            // Timeout after 3 seconds
+            setTimeout(() => {
+              subscription.unsubscribe()
+              resolve()
+            }, 3000)
+          })
+          // Give it a bit more time to fully process
+          await new Promise(resolve => setTimeout(resolve, 500))
         } else {
           // Wait a bit for Supabase to process the OAuth callback
-          await new Promise(resolve => setTimeout(resolve, 500))
+          await new Promise(resolve => setTimeout(resolve, 1000))
         }
         
         const { data, error } = await supabase.auth.getSession()
