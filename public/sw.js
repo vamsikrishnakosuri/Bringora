@@ -1,8 +1,8 @@
 // Service Worker for Bringora PWA
 // Provides offline support and caching
 
-const CACHE_NAME = 'bringora-v1'
-const RUNTIME_CACHE = 'bringora-runtime-v1'
+const CACHE_NAME = 'bringora-v2'
+const RUNTIME_CACHE = 'bringora-runtime-v2'
 
 // Assets to cache on install
 const PRECACHE_ASSETS = [
@@ -52,6 +52,8 @@ self.addEventListener('fetch', (event) => {
     event.request.url.includes('googleapis.com') ||
     event.request.url.includes('fonts.gstatic.com') ||
     event.request.url.includes('chrome-extension://') ||
+    // Don't cache CSS/JS files from /assets/ - always fetch fresh to avoid MIME type issues
+    event.request.url.includes('/assets/') && (event.request.url.endsWith('.css') || event.request.url.endsWith('.js')) ||
     (url.origin !== self.location.origin && url.protocol.startsWith('http'))
   ) {
     return
