@@ -14,7 +14,7 @@
     <script>
         // Prevent theme flash by setting theme before React loads
         // This ensures theme persists across OAuth redirects
-        (function() {
+        (function () {
             const stored = localStorage.getItem('theme');
             const theme = stored === 'light' || stored === 'dark' ? stored : 'light';
             document.documentElement.classList.remove('light', 'dark');

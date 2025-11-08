@@ -147,14 +147,14 @@ export default function RequestHelp() {
 
       if (insertError) throw insertError
 
-      showToast('Request submitted successfully!', 'success')
+      showToast(t('requestHelp.submitSuccess'), 'success')
       
       // Navigate to my requests page to see the submitted request
       setTimeout(() => {
         navigate('/my-requests')
       }, 1000)
     } catch (err: any) {
-      const errorMessage = err.message || 'Failed to submit request'
+      const errorMessage = err.message || t('requestHelp.submitError')
       setError(errorMessage)
       showToast(errorMessage, 'error')
     } finally {
@@ -286,7 +286,7 @@ export default function RequestHelp() {
               onClick={() => setStep('form')}
               className="flex-1"
             >
-              Edit Request
+              {t('requestHelp.editRequest')}
             </Button>
             <Button
               type="button"
@@ -294,7 +294,7 @@ export default function RequestHelp() {
               loading={loading}
               className="flex-1"
             >
-              Submit Request
+              {t('requestHelp.submitRequest')}
             </Button>
           </div>
         </div>
@@ -586,10 +586,10 @@ export default function RequestHelp() {
                 onClick={() => navigate('/')}
                 className="flex-1"
               >
-                Cancel
+                {t('requestHelp.cancel')}
               </Button>
               <Button type="submit" className="flex-1" loading={loading}>
-                Continue to Summary
+                {t('requestHelp.continueSummary')}
               </Button>
             </div>
           </form>

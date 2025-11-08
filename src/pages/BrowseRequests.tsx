@@ -228,19 +228,19 @@ export default function BrowseRequests() {
         {/* Premium Header */}
         <div className="mb-12 text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-4 tracking-tight dark:text-white">
-            Nearby Help Requests
+            {t('browseRequests.title')}
           </h1>
           <p className="text-xl text-muted dark:text-gray-400 max-w-2xl mx-auto font-light">
-            These people need your help in your service area
+            {t('browseRequests.subtitle')}
           </p>
         </div>
 
         {requests.length === 0 ? (
           <EmptyState
             icon={<Search className="w-10 h-10 text-muted dark:text-gray-400" />}
-            title="No Requests Available"
-            description="There are no help requests in your area at the moment. Check back later or create your own request to get help."
-            actionLabel="Go to Homepage"
+            title={t('browseRequests.noRequests')}
+            description={t('browseRequests.noRequestsDesc')}
+            actionLabel={t('browseRequests.goHome')}
             onAction={() => navigate('/')}
           />
         ) : (
@@ -276,7 +276,7 @@ export default function BrowseRequests() {
                       {request.distance && (
                         <div className="absolute top-4 right-4">
                           <span className="px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl bg-white/90 dark:bg-[#1A1A1A]/90 text-foreground dark:text-white border border-white/20 dark:border-white/10">
-                            {request.distance.toFixed(1)} km away
+                            {request.distance.toFixed(1)} {t('browseRequests.kmAway')}
                           </span>
                         </div>
                       )}
@@ -381,7 +381,7 @@ export default function BrowseRequests() {
                           className="flex-1 flex items-center justify-center gap-2 backdrop-blur-sm bg-foreground dark:bg-white text-background dark:text-foreground hover:opacity-90 transition-all duration-300 group/btn"
                         >
                           <UserCheck className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                          <span className="font-semibold">Contact {requesterName}</span>
+                          <span className="font-semibold">{t('browseRequests.contact')} {requesterName}</span>
                         </Button>
                         <Button
                           variant="outline"
@@ -389,7 +389,7 @@ export default function BrowseRequests() {
                           className="flex items-center justify-center gap-2 backdrop-blur-sm border-2 border-foreground dark:border-white/20 dark:text-white hover:bg-foreground hover:text-background dark:hover:bg-white/10 transition-all duration-300 group/btn"
                         >
                           <Eye className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                          <span>View Details</span>
+                                <span>{t('browseRequests.viewDetails')}</span>
                         </Button>
                       </div>
                     </div>

@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { supabase } from '@/lib/supabase'
 import Card from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
 import EmptyState from '@/components/EmptyState'
 import Skeleton from '@/components/ui/Skeleton'
 import { MapPin, DollarSign, Calendar, Clock, ShoppingBag, Phone, FileText } from 'lucide-react'
@@ -126,16 +127,25 @@ export default function MyRequests() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-12 px-4">
       <div className="container mx-auto max-w-6xl">
-        <h1 className="text-4xl font-bold mb-8 text-center dark:text-white tracking-tight">
-          My Help Requests
-        </h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl font-bold dark:text-white tracking-tight">
+            {t('myRequests.title')}
+          </h1>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2"
+          >
+            {t('myRequests.goHome')}
+          </Button>
+        </div>
 
         {requests.length === 0 ? (
           <EmptyState
             icon={<FileText className="w-10 h-10 text-muted dark:text-gray-400" />}
-            title="No Requests Yet"
-            description="You haven't created any help requests. Start by creating your first request to get help from nearby helpers."
-            actionLabel="Create Request"
+            title={t('myRequests.noRequests')}
+            description={t('myRequests.noRequestsDesc')}
+            actionLabel={t('myRequests.createRequest')}
             onAction={() => navigate('/request-help')}
           />
         ) : (
@@ -158,7 +168,7 @@ export default function MyRequests() {
                     />
                     <div className="absolute top-3 right-3">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(request.status)}`}>
-                        {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                        {t(`common.status.${request.status}`) || request.status.charAt(0).toUpperCase() + request.status.slice(1)}
                       </span>
                     </div>
                   </div>
