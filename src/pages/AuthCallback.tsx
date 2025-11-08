@@ -1,11 +1,21 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
+import { useTheme } from '@/contexts/ThemeContext'
 
 export default function AuthCallback() {
   const navigate = useNavigate()
+  const { theme } = useTheme()
 
   useEffect(() => {
+    // Ensure theme is preserved from localStorage
+    const storedTheme = localStorage.getItem('theme')
+    if (storedTheme === 'light' || storedTheme === 'dark') {
+      const root = window.document.documentElement
+      root.classList.remove('light', 'dark')
+      root.classList.add(storedTheme)
+    }
+
     const handleAuthCallback = async () => {
       const { data, error } = await supabase.auth.getSession()
       if (data.session && !error) {
@@ -28,7 +38,7 @@ export default function AuthCallback() {
     }
 
     handleAuthCallback()
-  }, [navigate])
+  }, [navigate, theme])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background dark:bg-background-dark">

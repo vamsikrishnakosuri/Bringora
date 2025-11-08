@@ -10,12 +10,24 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  // Initialize theme immediately from localStorage to prevent flash
   const [theme, setTheme] = useState<Theme>(() => {
+    // Check localStorage first
     const stored = localStorage.getItem('theme')
     if (stored === 'light' || stored === 'dark') {
+      // Apply theme immediately to prevent flash
+      const root = window.document.documentElement
+      root.classList.remove('light', 'dark')
+      root.classList.add(stored)
       return stored
     }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    // Default to light mode if no preference is stored
+    const defaultTheme = 'light'
+    const root = window.document.documentElement
+    root.classList.remove('light', 'dark')
+    root.classList.add(defaultTheme)
+    localStorage.setItem('theme', defaultTheme)
+    return defaultTheme
   })
 
   useEffect(() => {
