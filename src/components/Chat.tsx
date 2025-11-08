@@ -75,24 +75,31 @@ export default function Chat({
 
     loadMessages()
     
-    // Set up real-time subscription
-    const channel = supabase
-      .channel(`messages:${conversationId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'messages',
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        (payload) => {
-          if (payload.eventType === 'INSERT' && payload.new) {
-            handleNewMessage(payload.new as any)
+      // Set up real-time subscription
+      const channel = supabase
+        .channel(`messages:${conversationId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'messages',
+            filter: `conversation_id=eq.${conversationId}`,
+          },
+          (payload) => {
+            if (payload.eventType === 'INSERT' && payload.new) {
+              handleNewMessage(payload.new as any)
+            } else if (payload.eventType === 'UPDATE' && payload.new) {
+              // Update message status (read/delivered)
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === payload.new.id ? { ...msg, ...payload.new } : msg
+                )
+              )
+            }
           }
-        }
-      )
-      .subscribe()
+        )
+        .subscribe()
 
     return () => {
       supabase.removeChannel(channel)

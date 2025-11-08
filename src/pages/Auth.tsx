@@ -88,16 +88,41 @@ export default function Auth() {
           setResetSent(true)
         }
       } else if (isSignUp) {
-        const { error } = await signUp(sanitizedEmail, sanitizedPassword)
+        const { error, data } = await signUp(sanitizedEmail, sanitizedPassword)
         if (error) {
-          setError(error.message)
+          // Handle specific error codes
+          if (error.code === 'email_exists') {
+            setError(error.message)
+            // Suggest using Google sign-in if available
+            setTimeout(() => {
+              setIsSignUp(false)
+            }, 3000)
+          } else {
+            setError(error.message)
+          }
         } else {
-          setSignUpSuccess(true)
+          // Check if email confirmation is required
+          if (data?.user && !data?.session) {
+            // User created but needs email confirmation
+            setSignUpSuccess(true)
+          } else if (data?.session) {
+            // User created and auto-signed in (email confirmation disabled)
+            // Will be handled by useEffect that redirects on user change
+          } else {
+            setSignUpSuccess(true)
+          }
         }
       } else {
         const { error } = await signIn(sanitizedEmail, sanitizedPassword)
         if (error) {
-          setError(error.message)
+          // Provide more helpful error messages
+          if (error.code === 'email_not_confirmed') {
+            setError(error.message)
+          } else if (error.code === 'invalid_credentials') {
+            setError(error.message)
+          } else {
+            setError(error.message || 'Failed to sign in. Please check your credentials.')
+          }
         }
       }
     } catch (err: any) {
@@ -140,18 +165,50 @@ export default function Auth() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] px-4">
         <Card className="max-w-md w-full backdrop-blur-xl bg-white/80 dark:bg-[#1A1A1A]/80 border-white/20 dark:border-white/10 text-center">
           <h2 className="text-2xl font-bold mb-4 dark:text-white">Account Created!</h2>
-          <p className="text-muted dark:text-gray-400 mb-6">
-            Please check your email to confirm your account. Once confirmed, you can sign in.
-          </p>
-          <Button 
-            onClick={() => {
-              setSignUpSuccess(false)
-              setIsSignUp(false)
-            }} 
-            className="w-full"
-          >
-            Back to Sign In
-          </Button>
+          <div className="space-y-4 mb-6">
+            <p className="text-muted dark:text-gray-400">
+              We've sent a confirmation email to <strong>{email}</strong>
+            </p>
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-left">
+              <p className="text-sm text-blue-800 dark:text-blue-300">
+                <strong>Next steps:</strong>
+              </p>
+              <ol className="text-sm text-blue-700 dark:text-blue-400 mt-2 space-y-1 list-decimal list-inside">
+                <li>Check your email inbox (and spam folder)</li>
+                <li>Click the confirmation link in the email</li>
+                <li>Return here and sign in with your credentials</li>
+              </ol>
+            </div>
+            <p className="text-xs text-muted dark:text-gray-400">
+              Didn't receive the email? Check your spam folder or try signing up again.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Button 
+              onClick={() => {
+                setSignUpSuccess(false)
+                setIsSignUp(false)
+                setEmail('')
+                setPassword('')
+              }} 
+              className="w-full"
+            >
+              Back to Sign In
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSignUpSuccess(false)
+                setIsSignUp(false)
+                setEmail('')
+                setPassword('')
+                setIsSignUp(true)
+              }}
+              className="w-full"
+            >
+              Try Different Email
+            </Button>
+          </div>
         </Card>
       </div>
     )
@@ -174,7 +231,21 @@ export default function Auth() {
 
         {error && (
           <div className="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/30 dark:border dark:border-red-800/50 text-red-600 dark:text-red-300 text-sm">
-            {error}
+            <p className="font-semibold mb-1">Error:</p>
+            <p>{error}</p>
+            {error.includes('Google') && (
+              <button
+                onClick={handleGoogleSignIn}
+                className="mt-2 text-sm underline hover:no-underline"
+              >
+                Click here to sign in with Google instead
+              </button>
+            )}
+            {error.includes('confirmation') && (
+              <p className="mt-2 text-xs">
+                Need a new confirmation email? Try signing up again with the same email.
+              </p>
+            )}
           </div>
         )}
 

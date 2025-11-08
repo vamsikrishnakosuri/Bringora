@@ -1,7 +1,7 @@
 -- Create Messages Table for In-App Chat with E2E Encryption Support
 CREATE TABLE IF NOT EXISTS messages (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  conversation_id UUID NOT NULL,
+  conversation_id TEXT NOT NULL, -- Format: "user1_id_user2_id" or "user1_id_user2_id_helpRequestId"
   sender_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   recipient_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   help_request_id UUID REFERENCES help_requests(id) ON DELETE CASCADE,
@@ -13,17 +13,12 @@ CREATE TABLE IF NOT EXISTS messages (
   status TEXT DEFAULT 'sent' CHECK (status IN ('sent', 'delivered', 'read')),
   -- Timestamps
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  read_at TIMESTAMP WITH TIME ZONE,
-  -- Indexes for performance
-  CONSTRAINT messages_conversation_check CHECK (
-    (sender_id < recipient_id AND conversation_id = (sender_id::text || '_' || recipient_id::text)::uuid) OR
-    (recipient_id < sender_id AND conversation_id = (recipient_id::text || '_' || sender_id::text)::uuid)
-  )
+  read_at TIMESTAMP WITH TIME ZONE
 );
 
 -- Create Conversations Table (for easier querying)
 CREATE TABLE IF NOT EXISTS conversations (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  id TEXT PRIMARY KEY, -- Same format as conversation_id in messages
   user1_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   user2_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   help_request_id UUID REFERENCES help_requests(id) ON DELETE CASCADE,
@@ -33,7 +28,6 @@ CREATE TABLE IF NOT EXISTS conversations (
   user2_unread_count INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(user1_id, user2_id, help_request_id),
   CONSTRAINT conversations_user_order CHECK (user1_id < user2_id)
 );
 
@@ -143,34 +137,39 @@ CREATE POLICY "Only admins can update reports"
 -- Function to update conversation last message
 CREATE OR REPLACE FUNCTION update_conversation_on_message()
 RETURNS TRIGGER AS $$
+DECLARE
+  v_user1_id UUID;
+  v_user2_id UUID;
+  v_conversation_id TEXT;
 BEGIN
-  INSERT INTO conversations (user1_id, user2_id, help_request_id, last_message_at, last_message_preview)
+  v_user1_id := LEAST(NEW.sender_id, NEW.recipient_id);
+  v_user2_id := GREATEST(NEW.sender_id, NEW.recipient_id);
+  v_conversation_id := NEW.conversation_id;
+  
+  INSERT INTO conversations (id, user1_id, user2_id, help_request_id, last_message_at, last_message_preview)
   VALUES (
-    LEAST(NEW.sender_id, NEW.recipient_id),
-    GREATEST(NEW.sender_id, NEW.recipient_id),
+    v_conversation_id,
+    v_user1_id,
+    v_user2_id,
     NEW.help_request_id,
     NEW.created_at,
     LEFT(REPLACE(REPLACE(NEW.encrypted_content, '<', ''), '>', ''), 50)
   )
-  ON CONFLICT (user1_id, user2_id, help_request_id)
+  ON CONFLICT (id)
   DO UPDATE SET
     last_message_at = NEW.created_at,
     last_message_preview = LEFT(REPLACE(REPLACE(NEW.encrypted_content, '<', ''), '>', ''), 50),
     updated_at = NOW();
   
   -- Update unread count
-  IF NEW.recipient_id = conversations.user1_id THEN
+  IF NEW.recipient_id = v_user1_id THEN
     UPDATE conversations
     SET user1_unread_count = user1_unread_count + 1
-    WHERE user1_id = LEAST(NEW.sender_id, NEW.recipient_id)
-      AND user2_id = GREATEST(NEW.sender_id, NEW.recipient_id)
-      AND help_request_id = NEW.help_request_id;
+    WHERE id = v_conversation_id;
   ELSE
     UPDATE conversations
     SET user2_unread_count = user2_unread_count + 1
-    WHERE user1_id = LEAST(NEW.sender_id, NEW.recipient_id)
-      AND user2_id = GREATEST(NEW.sender_id, NEW.recipient_id)
-      AND help_request_id = NEW.help_request_id;
+    WHERE id = v_conversation_id;
   END IF;
   
   RETURN NEW;
@@ -185,7 +184,7 @@ CREATE TRIGGER trigger_update_conversation_on_message
 
 -- Function to mark messages as read
 CREATE OR REPLACE FUNCTION mark_messages_as_read(
-  p_conversation_id UUID,
+  p_conversation_id TEXT,
   p_user_id UUID
 )
 RETURNS void AS $$

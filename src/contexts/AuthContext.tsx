@@ -41,19 +41,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
-    return { error }
+    
+    // Check if error is due to unconfirmed email
+    if (error) {
+      // Check if user exists but email is not confirmed
+      if (error.message?.includes('Email not confirmed') || error.message?.includes('email_not_confirmed')) {
+        return { 
+          error: { 
+            message: 'Please check your email and click the confirmation link before signing in.',
+            code: 'email_not_confirmed'
+          } 
+        }
+      }
+      
+      // Check if user exists but wrong password
+      if (error.message?.includes('Invalid login credentials') || error.message?.includes('invalid_credentials')) {
+        return { 
+          error: { 
+            message: 'Invalid email or password. If you signed up with Google, please use "Continue with Google" instead.',
+            code: 'invalid_credentials'
+          } 
+        }
+      }
+    }
+    
+    return { error, data }
   }
 
   const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     })
-    return { error }
+    
+    // Check if email already exists
+    if (error) {
+      if (error.message?.includes('already registered') || error.message?.includes('User already registered')) {
+        return { 
+          error: { 
+            message: 'This email is already registered. If you signed up with Google, please use "Continue with Google" to sign in. Otherwise, try signing in with your password.',
+            code: 'email_exists'
+          } 
+        }
+      }
+    }
+    
+    return { error, data }
   }
 
   const signInWithGoogle = async () => {
