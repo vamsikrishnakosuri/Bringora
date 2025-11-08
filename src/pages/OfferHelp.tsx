@@ -320,7 +320,7 @@ export default function OfferHelp() {
           <Card className="backdrop-blur-xl bg-white/80 dark:bg-[#1A1A1A]/80 border-white/20 dark:border-white/10 text-center">
             <div className="p-6">
               <div className="w-20 h-20 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center mx-auto mb-4">
-                <ClockIcon className="w-12 h-12 text-yellow-600 dark:text-yellow-400" />
+                <Clock className="w-12 h-12 text-yellow-600 dark:text-yellow-400" />
               </div>
               <h2 className="text-2xl font-bold mb-4 dark:text-white">Application Under Review</h2>
               <p className="text-muted dark:text-gray-400 mb-6">
