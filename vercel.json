@@ -9,7 +9,7 @@
   ],
   "headers": [
     {
-      "source": "/assets/:path*.css",
+      "source": "/assets/(.*\\.css)",
       "headers": [
         {
           "key": "Content-Type",
@@ -18,11 +18,15 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
         }
       ]
     },
     {
-      "source": "/assets/:path*.js",
+      "source": "/assets/(.*\\.js)",
       "headers": [
         {
           "key": "Content-Type",
@@ -31,15 +35,10 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/assets/:path*",
-      "headers": [
+        },
         {
           "key": "X-Content-Type-Options",
-          "value": ""
+          "value": "nosniff"
         }
       ]
     },
