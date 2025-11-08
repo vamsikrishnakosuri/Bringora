@@ -15,6 +15,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import ProfileCheck from './components/ProfileCheck'
 import { ToastProvider } from './components/ui/ToastContainer'
 import ErrorBoundary from './components/ErrorBoundary'
+import InstallPrompt from './components/InstallPrompt'
 import { useEffect } from 'react'
 
 function AppContent() {
@@ -47,6 +48,7 @@ function AppContent() {
         <Route path="/browse-requests" element={<ProfileCheck><BrowseRequests /></ProfileCheck>} />
         <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
+        <InstallPrompt />
       </main>
     </div>
   )
