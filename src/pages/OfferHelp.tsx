@@ -7,6 +7,7 @@ import { calculateDistance } from '@/lib/utils'
 import Card from '@/components/ui/Card'
 import { MapPin, Phone, Clock, DollarSign, ShoppingBag, Navigation, Send } from 'lucide-react'
 import ContactModal from '@/components/ContactModal'
+import ServiceRadiusSetup from '@/components/ServiceRadiusSetup'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import { useToast } from '@/components/ui/ToastContainer'
@@ -60,6 +61,7 @@ export default function OfferHelp() {
   })
   const [counterOffers, setCounterOffers] = useState<Record<string, { amount: string; showInput: boolean }>>({})
   const [submittingCounterOffer, setSubmittingCounterOffer] = useState<Record<string, boolean>>({})
+  const [showServiceRadiusSetup, setShowServiceRadiusSetup] = useState(false)
 
   if (!user) {
     navigate('/auth?redirect=/offer-help')
@@ -68,8 +70,14 @@ export default function OfferHelp() {
 
   useEffect(() => {
     loadHelperLocation()
-    loadRequests()
   }, [user])
+
+  useEffect(() => {
+    // Reload requests when helper location changes
+    if (user) {
+      loadRequests()
+    }
+  }, [helperLocation, user])
 
   const loadHelperLocation = async () => {
     try {
@@ -82,9 +90,13 @@ export default function OfferHelp() {
       if (error && error.code !== 'PGRST116') throw error
       if (data) {
         setHelperLocation(data)
+      } else {
+        // No helper record found - user needs to set up service area
+        setHelperLocation(null)
       }
     } catch (err) {
       console.error('Error loading helper location:', err)
+      setHelperLocation(null)
     }
   }
 
@@ -226,12 +238,49 @@ export default function OfferHelp() {
     return `${distance.toFixed(1)} km`
   }
 
+  // Show service radius setup if helper location is not set
+  if (showServiceRadiusSetup || (!loading && !helperLocation)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-6 sm:py-8 lg:py-12 px-3 sm:px-4 lg:px-6">
+        <div className="container mx-auto max-w-3xl">
+          <ServiceRadiusSetup
+            onComplete={() => {
+              setShowServiceRadiusSetup(false)
+              loadHelperLocation()
+            }}
+          />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-6 sm:py-8 lg:py-12 px-3 sm:px-4 lg:px-6">
       <div className="container mx-auto max-w-6xl">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 sm:mb-8 text-center dark:text-white tracking-tight px-2">
-          {t('card.offerHelp.title')}
-        </h1>
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold dark:text-white tracking-tight px-2">
+            {t('card.offerHelp.title')}
+          </h1>
+          {helperLocation && (
+            <Button
+              variant="outline"
+              onClick={() => setShowServiceRadiusSetup(true)}
+              className="text-sm"
+            >
+              Update Service Area
+            </Button>
+          )}
+        </div>
+
+        {helperLocation && (
+          <Card className="mb-6 backdrop-blur-xl bg-blue-50/80 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800/50">
+            <div className="p-4">
+              <p className="text-sm text-blue-800 dark:text-blue-300">
+                <strong>Service Area:</strong> {helperLocation.service_radius} {helperLocation.service_radius_unit === 'miles' ? 'miles' : 'km'} radius from your location
+              </p>
+            </div>
+          </Card>
+        )}
 
         {loading ? (
           <div className="text-center py-12">
@@ -242,9 +291,20 @@ export default function OfferHelp() {
           </div>
         ) : requests.length === 0 ? (
           <Card className="text-center py-12 backdrop-blur-xl bg-white/80 dark:bg-[#1A1A1A]/80 border-white/20 dark:border-white/10">
-            <p className="text-muted dark:text-gray-300 text-lg">
-              No help requests available at the moment.
+            <p className="text-muted dark:text-gray-300 text-lg mb-4">
+              {helperLocation && helperLocation.service_radius
+                ? `No help requests found within ${helperLocation.service_radius} ${helperLocation.service_radius_unit === 'miles' ? 'miles' : 'km'} of your service area.`
+                : 'No help requests available at the moment.'}
             </p>
+            {helperLocation && helperLocation.service_radius && (
+              <Button
+                variant="outline"
+                onClick={() => setShowServiceRadiusSetup(true)}
+                className="mt-4"
+              >
+                Increase Service Radius
+              </Button>
+            )}
           </Card>
         ) : (
           <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
