@@ -194,6 +194,10 @@ export default function TermsAndConditions() {
                   <strong>Last Updated:</strong> {new Date().toLocaleDateString()}
                 </p>
                 <p className="text-sm text-blue-700 dark:text-blue-400 mt-2">
+                  <strong>Free & Non-Commercial:</strong> Bringora is a completely free, non-commercial platform. 
+                  No fees, no ads, no commissions. Use it freely to connect with your community.
+                </p>
+                <p className="text-sm text-blue-700 dark:text-blue-400 mt-2">
                   By using Bringora, you acknowledge that you have read, understood, and agree to these Terms and Conditions.
                 </p>
               </div>
