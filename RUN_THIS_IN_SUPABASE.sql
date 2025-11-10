@@ -135,3 +135,4 @@ END $$;
 -- Refresh the schema cache (this helps Supabase recognize the new columns)
 NOTIFY pgrst, 'reload schema';
 
+

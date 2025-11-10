@@ -79,3 +79,4 @@ If you just want to test quickly without email confirmation:
 
 The app is now updated to show a clear success message after signup, guiding users to check their email! ✅
 
+

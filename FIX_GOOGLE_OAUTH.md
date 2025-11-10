@@ -71,3 +71,4 @@ The code is already updated to use `window.location.origin` dynamically, so it w
 
 **The code fix has been pushed. Just update Supabase and Google settings!**
 
+

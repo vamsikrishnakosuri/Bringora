@@ -66,3 +66,4 @@ If you don't have icons ready:
 
 **Once you add the icons, your PWA will be fully functional!** 🎉
 
+

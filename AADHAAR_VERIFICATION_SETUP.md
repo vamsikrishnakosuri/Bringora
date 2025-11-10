@@ -1,40 +1,121 @@
-# Aadhaar Verification Setup Guide
+# Government ID Verification Setup Guide
 
 ## Overview
 
-This application now integrates with **AI Parichay API** from [ai.nic.in](https://ai.nic.in/AI/) for automated Aadhaar verification. This enables real-time verification of Aadhaar numbers and extraction of data from Aadhaar card photos.
+This application uses **FREE Government APIs from API Setu** (Government of India) for automated ID verification. API Setu provides access to 973+ free APIs from 300+ government departments, including PAN, Aadhaar, Driving License, Vehicle Registration, and more.
+
+**Website**: https://directory.apisetu.gov.in/
 
 ## Features
 
-- ✅ **Automated Aadhaar Verification**: Verify Aadhaar numbers using government-backed AI Parichay API
-- ✅ **OCR Data Extraction**: Extract name, ID number, DOB, and photo from Aadhaar card images
+- ✅ **FREE Government APIs**: Use official API Setu APIs (no cost!)
+- ✅ **Multi-ID Support**: Aadhaar, PAN, Driving License, and more
+- ✅ **Automated Verification**: Verify IDs using government databases
 - ✅ **Name Matching**: Automatically match extracted name with user-provided name
 - ✅ **Confidence Scoring**: Get confidence scores (0-100%) for verification results
 - ✅ **Fallback Handling**: Gracefully falls back to format validation if API is unavailable
+- ✅ **Alternative Providers**: Support for paid alternatives (Surepass, IDfy, Veri5Digital) if needed
+
+## Available API Providers
+
+### 1. **API Setu** (Recommended - FREE Government APIs) ⭐⭐⭐
+- **Website**: https://directory.apisetu.gov.in/
+- **Cost**: **FREE** (government-backed)
+- **Setup**: Free registration at apisetu.gov.in
+- **Features**: 
+  - ✅ Aadhaar e-KYC verification
+  - ✅ PAN card verification (NSDL/Income Tax Department)
+  - ✅ Driving License verification (Ministry of Road Transport)
+  - ✅ Vehicle Registration & Tax APIs
+  - ✅ 973+ other government APIs
+- **Why Use This**: It's free, official, and government-backed!
+
+### 2. **Surepass** (Paid Alternative)
+- **Website**: https://www.surepass.io/
+- **Cost**: Paid (affordable pricing)
+- **Setup**: Easy registration, quick API access
+- **Features**: Aadhaar verification, OCR extraction, name matching
+
+### 3. **IDfy** (Paid Alternative)
+- **Website**: https://www.idfy.com/
+- **Cost**: Paid
+- **Features**: Comprehensive verification services
+
+### 4. **Veri5Digital** (Paid Alternative)
+- **Website**: https://www.veri5digital.com/
+- **Cost**: Paid (affordable: $0.10-$0.50 per verification)
+- **Features**: Fast verification, good documentation
+
+### 5. **AI Parichay** (Government - If Accessible)
+- **Website**: https://ai.nic.in/AI/ (may not be accessible)
+- **Cost**: FREE (government-backed)
+- **Note**: Currently inaccessible for external users
 
 ## Setup Instructions
 
-### Step 1: Obtain API Credentials
+### Step 1: Get FREE API Key from API Setu (Recommended)
 
-1. Visit [https://ai.nic.in/AI/](https://ai.nic.in/AI/)
-2. Navigate to **AI Parichay** service
-3. Register your application/organization
-4. Obtain:
-   - API Endpoint URL
-   - API Key (if required)
+1. Visit **https://directory.apisetu.gov.in/**
+2. Browse available APIs:
+   - **Aadhaar e-KYC**: Search for "UIDAI" or "Aadhaar"
+   - **PAN Verification**: Search for "NSDL" or "Income Tax"
+   - **Driving License**: Search for "Transport" or "Driving License"
+3. Register for free API access
+4. Get your API key from the dashboard
+5. Note the exact API endpoint URLs for each service
 
 ### Step 2: Configure Environment Variables
 
 Add the following environment variables to your `.env` file:
 
+#### Option A: Using API Setu (FREE - Recommended) ⭐
 ```env
-# AI Parichay API Configuration
-VITE_AI_PARICHAY_API_URL=https://ai.nic.in/api/aiparichay/verify
-VITE_AI_PARICHAY_OCR_URL=https://ai.nic.in/api/aiparichay/extract
-VITE_AI_PARICHAY_API_KEY=your_api_key_here
+# Verification API Provider (default is api_setu)
+VITE_VERIFICATION_API_PROVIDER=api_setu
+
+# API Setu Configuration (FREE Government APIs)
+VITE_API_SETU_API_KEY=your_api_setu_key_here
+VITE_API_SETU_AADHAAR_URL=https://api.apisetu.gov.in/uidai/aadhaar/ekyc
+VITE_API_SETU_PAN_URL=https://api.apisetu.gov.in/incometax/pan/verify
+VITE_API_SETU_DL_URL=https://api.apisetu.gov.in/transport/drivinglicense/verify
 ```
 
-**Note**: Replace `your_api_key_here` with your actual API key from AI Parichay.
+**Note**: 
+- Get your free API key from https://directory.apisetu.gov.in/
+- API endpoints may vary - check the directory for exact URLs
+- All APIs are **FREE** to use!
+
+#### Option B: Using Surepass (Paid Alternative)
+```env
+# Verification API Provider
+VITE_VERIFICATION_API_PROVIDER=surepass
+
+# Surepass API Configuration
+VITE_SUREPASS_API_URL=https://api.surepass.io/api/v1/aadhaar/verify
+VITE_SUREPASS_API_KEY=your_surepass_api_key_here
+```
+
+#### Option C: Using IDfy (Paid Alternative)
+```env
+# Verification API Provider
+VITE_VERIFICATION_API_PROVIDER=idfy
+
+# IDfy API Configuration
+VITE_IDFY_API_URL=https://api.idfy.com/v1/aadhaar/verify
+VITE_IDFY_API_KEY=your_idfy_api_key_here
+```
+
+#### Option D: Using Veri5Digital (Paid Alternative)
+```env
+# Verification API Provider
+VITE_VERIFICATION_API_PROVIDER=veri5digital
+
+# Veri5Digital API Configuration
+VITE_VERI5_API_URL=https://api.veri5digital.com/v1/aadhaar/verify
+VITE_VERI5_API_KEY=your_veri5_api_key_here
+```
+
+**Note**: Replace `your_*_api_key_here` with your actual API key from the chosen provider.
 
 ### Step 3: Update Vercel Environment Variables (if deployed)
 
@@ -42,10 +123,20 @@ If your app is deployed on Vercel:
 
 1. Go to your Vercel project settings
 2. Navigate to **Environment Variables**
-3. Add the three variables above:
-   - `VITE_AI_PARICHAY_API_URL`
-   - `VITE_AI_PARICHAY_OCR_URL`
-   - `VITE_AI_PARICHAY_API_KEY`
+3. Add the variables based on your chosen provider:
+   
+   **For Surepass:**
+   - `VITE_VERIFICATION_API_PROVIDER=surepass`
+   - `VITE_SUREPASS_API_KEY=your_key`
+   
+   **For IDfy:**
+   - `VITE_VERIFICATION_API_PROVIDER=idfy`
+   - `VITE_IDFY_API_KEY=your_key`
+   
+   **For Veri5Digital:**
+   - `VITE_VERIFICATION_API_PROVIDER=veri5digital`
+   - `VITE_VERI5_API_KEY=your_key`
+   
 4. Redeploy your application
 
 ### Step 4: Verify Database Schema
@@ -225,4 +316,5 @@ For issues with:
 
 **Last Updated**: Implementation complete with AI Parichay API integration
 **Status**: ✅ Ready for API credential configuration
+
 

@@ -148,3 +148,4 @@ npx cap open android
 
 **Start with PWA first, then move to Capacitor when ready!** 🚀
 
+

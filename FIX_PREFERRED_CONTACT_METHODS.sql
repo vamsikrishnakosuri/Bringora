@@ -8,3 +8,4 @@ ADD COLUMN IF NOT EXISTS preferred_contact_methods TEXT[] DEFAULT ARRAY['call', 
 -- ALTER TABLE help_requests DROP COLUMN IF EXISTS preferred_contact_methods;
 -- ALTER TABLE help_requests ADD COLUMN preferred_contact_methods TEXT[] DEFAULT ARRAY['call', 'message', 'email']::TEXT[];
 
+

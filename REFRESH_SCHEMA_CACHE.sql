@@ -13,3 +13,4 @@ NOTIFY pgrst, 'reload schema';
 -- 2. Clear your browser cache
 -- 3. Restart your Supabase project (if you have access)
 
+

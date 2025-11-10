@@ -107,3 +107,4 @@ All features are designed to work with free tiers:
 
 This is a fully free, open-source application. All features are designed to work without any paid services.
 
+

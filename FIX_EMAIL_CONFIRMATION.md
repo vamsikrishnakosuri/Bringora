@@ -46,3 +46,4 @@ The issue is that Supabase needs to know this URL is allowed.
 
 **After updating Supabase settings, the 404 error should be fixed!**
 
+

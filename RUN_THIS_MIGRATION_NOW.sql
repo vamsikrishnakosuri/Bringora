@@ -53,3 +53,4 @@ AND column_name = 'preferred_contact_methods';
 
 -- If you see a row returned above, the migration was successful! ✅
 
+

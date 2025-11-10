@@ -119,3 +119,4 @@ WHERE table_schema = 'public'
   AND table_name = 'help_requests'
 ORDER BY ordinal_position;
 
+

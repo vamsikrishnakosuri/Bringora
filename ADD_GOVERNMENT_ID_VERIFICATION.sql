@@ -77,3 +77,4 @@ COMMENT ON COLUMN helper_applications.verification_api_response IS 'Full API res
 COMMENT ON COLUMN helper_applications.verification_confidence IS 'Confidence score from verification (0-100%)';
 COMMENT ON COLUMN helper_applications.verification_method IS 'Method used for verification: ai_parichay, veri5digital, surepass, idfy, manual, format_only';
 
+

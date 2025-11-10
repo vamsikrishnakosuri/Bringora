@@ -57,7 +57,7 @@
         },
         {
                 "key": "Content-Security-Policy",
-                "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://*.mapbox.com https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.mapbox.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.supabase.co https://*.mapbox.com https://fonts.gstatic.com https://ai.nic.in wss://*.supabase.co; frame-src 'self' https://*.supabase.co https://vercel.live https://*.vercel.live; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;"
+                "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://*.mapbox.com https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.mapbox.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.supabase.co https://*.mapbox.com https://fonts.gstatic.com https://api.apisetu.gov.in https://directory.apisetu.gov.in https://ai.nic.in https://api.surepass.io https://api.idfy.com https://api.veri5digital.com wss://*.supabase.co; frame-src 'self' https://*.supabase.co https://vercel.live https://*.vercel.live; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;"
         }
       ]
     }
