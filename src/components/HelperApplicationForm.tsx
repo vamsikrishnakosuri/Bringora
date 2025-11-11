@@ -184,12 +184,14 @@ export default function HelperApplicationForm({ onComplete, onCancel }: HelperAp
       return
     }
 
-    if (!idPhoto) {
-      setFieldErrors({ idPhoto: 'Please upload your ID photo' })
+    // ID verification is now optional
+    // Only validate if user has started entering ID info
+    if (idNumber.trim() && !idPhoto) {
+      setFieldErrors({ idPhoto: 'Please upload your ID photo if providing ID number' })
       return
     }
 
-    if (!selfiePhoto) {
+    if (idPhoto && !selfiePhoto) {
       setFieldErrors({ selfiePhoto: 'Please upload a selfie with your ID' })
       return
     }
@@ -202,50 +204,60 @@ export default function HelperApplicationForm({ onComplete, onCancel }: HelperAp
     setError('')
 
     try {
-      // Validate all data
+      // Validate all data (ID verification is optional)
       const cleanedIdNumber = idNumber.replace(/\s+/g, '').toUpperCase()
+      const hasIdVerification = cleanedIdNumber && idPhoto && selfiePhoto
       
-      if (!idPhoto || !selfiePhoto) {
-        throw new Error('Please upload both ID photo and selfie')
+      // If user provided ID number, they must provide photos
+      if (cleanedIdNumber && (!idPhoto || !selfiePhoto)) {
+        throw new Error('Please upload both ID photo and selfie if providing ID number')
       }
 
-      // Upload photos to Supabase Storage
-      const idPhotoPath = `helper-applications/${user?.id}/id_${Date.now()}.${idPhoto.name.split('.').pop()}`
-      const selfiePath = `helper-applications/${user?.id}/selfie_${Date.now()}.${selfiePhoto.name.split('.').pop()}`
+      // Upload photos to Supabase Storage (only if provided)
+      let idPhotoPath: string | null = null
+      let selfiePath: string | null = null
+      let idUrlData: any = null
+      let selfieUrlData: any = null
+      let maskedIdNumber: string | null = null
 
-      const { error: idUploadError } = await supabase.storage
-        .from('helper-applications')
-        .upload(idPhotoPath, idPhoto, {
-          cacheControl: '3600',
-          upsert: false
-        })
+      if (hasIdVerification && idPhoto && selfiePhoto) {
+        idPhotoPath = `helper-applications/${user?.id}/id_${Date.now()}.${idPhoto.name.split('.').pop()}`
+        selfiePath = `helper-applications/${user?.id}/selfie_${Date.now()}.${selfiePhoto.name.split('.').pop()}`
 
-      if (idUploadError) throw idUploadError
+        const { error: idUploadError } = await supabase.storage
+          .from('helper-applications')
+          .upload(idPhotoPath, idPhoto, {
+            cacheControl: '3600',
+            upsert: false
+          })
 
-      const { error: selfieUploadError } = await supabase.storage
-        .from('helper-applications')
-        .upload(selfiePath, selfiePhoto, {
-          cacheControl: '3600',
-          upsert: false
-        })
+        if (idUploadError) throw idUploadError
 
-      if (selfieUploadError) throw selfieUploadError
+        const { error: selfieUploadError } = await supabase.storage
+          .from('helper-applications')
+          .upload(selfiePath, selfiePhoto, {
+            cacheControl: '3600',
+            upsert: false
+          })
 
-      // Get public URLs
-      const { data: idUrlData } = supabase.storage
-        .from('helper-applications')
-        .getPublicUrl(idPhotoPath)
+        if (selfieUploadError) throw selfieUploadError
 
-      const { data: selfieUrlData } = supabase.storage
-        .from('helper-applications')
-        .getPublicUrl(selfiePath)
+        // Get public URLs
+        idUrlData = supabase.storage
+          .from('helper-applications')
+          .getPublicUrl(idPhotoPath)
 
-      // Create masked ID number for display
-      const maskedIdNumber = maskIdNumber(cleanedIdNumber, idType)
+        selfieUrlData = supabase.storage
+          .from('helper-applications')
+          .getPublicUrl(selfiePath)
 
-      // Perform ID verification using AI Parichay API (for Aadhaar)
+        // Create masked ID number for display
+        maskedIdNumber = maskIdNumber(cleanedIdNumber, idType)
+      }
+
+      // Perform ID verification using API (only if ID provided)
       let verificationResult = null
-      if (idType === 'aadhaar' && idPhoto) {
+      if (hasIdVerification && idType === 'aadhaar' && idPhoto) {
         try {
           const { verifyIdWithAPI } = await import('@/lib/idVerification')
           verificationResult = await verifyIdWithAPI(
@@ -278,6 +290,11 @@ export default function HelperApplicationForm({ onComplete, onCancel }: HelperAp
         verificationData.verified_at = new Date().toISOString()
       }
 
+      // Determine verification method
+      const verificationMethod = hasIdVerification 
+        ? 'government_id' 
+        : 'community' // Will build trust through ratings
+
       // Save application to database
       const { error: appError } = await supabase
         .from('helper_applications')
@@ -286,24 +303,30 @@ export default function HelperApplicationForm({ onComplete, onCancel }: HelperAp
           full_name: fullName,
           phone: phone,
           email: email || user?.email || null,
-          id_type: idType,
-          id_number: cleanedIdNumber, // Store full number (encrypted in production)
+          id_type: hasIdVerification ? idType : null,
+          id_number: hasIdVerification ? cleanedIdNumber : null, // Store full number (encrypted in production)
           id_number_masked: maskedIdNumber,
-          id_photo_url: idUrlData.publicUrl,
-          selfie_photo_url: selfieUrlData.publicUrl,
-          status: verificationResult?.verified ? 'pending' : 'pending', // Still pending for admin review
+          id_photo_url: idUrlData?.publicUrl || null,
+          selfie_photo_url: selfieUrlData?.publicUrl || null,
+          status: 'pending', // Still pending for admin review
+          verification_method: verificationMethod,
+          id_verification_optional: true,
           ...verificationData,
         })
 
       if (appError) throw appError
 
       // Show appropriate message based on verification result
-      if (verificationResult?.verified) {
-        showToast('Aadhaar verified successfully! Application submitted.', 'success')
-      } else if (verificationResult?.error) {
-        showToast('Application submitted. Verification pending manual review.', 'info')
+      if (hasIdVerification) {
+        if (verificationResult?.verified) {
+          showToast('ID verified successfully! Application submitted.', 'success')
+        } else if (verificationResult?.error) {
+          showToast('Application submitted. ID verification pending manual review.', 'info')
+        } else {
+          showToast('Application submitted successfully! ID verification pending.', 'success')
+        }
       } else {
-        showToast('Application submitted successfully! Verification pending.', 'success')
+        showToast('Application submitted! Build trust through completed tasks and ratings.', 'success')
       }
       
       onComplete()
@@ -327,14 +350,26 @@ export default function HelperApplicationForm({ onComplete, onCancel }: HelperAp
           <p className="text-muted dark:text-gray-400 mb-6">
             Your helper application has been submitted successfully. We will verify your government ID and get back to you within 24 hours.
           </p>
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-            <p className="text-sm text-blue-800 dark:text-blue-300">
-              <strong>Status:</strong> ⏳ Verification Pending
-            </p>
-            <p className="text-sm text-blue-700 dark:text-blue-400 mt-2">
-              Your ID ({maskIdNumber(idNumber.replace(/\s+/g, ''), idType)}) will be verified using government databases.
-            </p>
-          </div>
+          {idNumber.trim() && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+              <p className="text-sm text-blue-800 dark:text-blue-300">
+                <strong>Status:</strong> ⏳ ID Verification Pending
+              </p>
+              <p className="text-sm text-blue-700 dark:text-blue-400 mt-2">
+                Your ID ({maskIdNumber(idNumber.replace(/\s+/g, ''), idType)}) will be verified using government databases.
+              </p>
+            </div>
+          )}
+          {!idNumber.trim() && (
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6">
+              <p className="text-sm text-green-800 dark:text-green-300">
+                <strong>Status:</strong> ✅ Application Submitted
+              </p>
+              <p className="text-sm text-green-700 dark:text-green-400 mt-2">
+                You'll build trust through community ratings and completed tasks. Complete your profile and verify your phone to get started!
+              </p>
+            </div>
+          )}
           <Button onClick={handleFinalSubmit} loading={loading} className="w-full">
             Continue to Service Area Setup
           </Button>
@@ -434,16 +469,21 @@ export default function HelperApplicationForm({ onComplete, onCancel }: HelperAp
         {step === 2 && (
           <form onSubmit={handleStep2Submit} className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold mb-4 dark:text-white">Government ID Verification</h3>
+              <h3 className="text-lg font-semibold mb-4 dark:text-white">Identity Verification (Optional)</h3>
               <p className="text-sm text-muted dark:text-gray-400 mb-4">
-                We verify your identity using Indian Government ID databases for security and trust.
+                <strong>Note:</strong> Government ID verification is optional. You can build trust through community ratings and reviews instead. However, verified helpers may get more requests.
               </p>
+              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  <strong>Alternative Trust Building:</strong> Complete your profile, verify your phone, and build a good reputation through completed tasks and positive ratings.
+                </p>
+              </div>
 
               <div className="space-y-4">
                 {/* ID Type Selection */}
                 <div>
                   <label className="block text-sm font-medium mb-2 dark:text-white">
-                    ID Type <span className="text-red-500">*</span>
+                    ID Type <span className="text-muted dark:text-gray-400">(Optional)</span>
                   </label>
                   <select
                     value={idType}
@@ -462,7 +502,7 @@ export default function HelperApplicationForm({ onComplete, onCancel }: HelperAp
                 {/* ID Number */}
                 <div>
                   <label className="block text-sm font-medium mb-2 dark:text-white">
-                    {getIdTypeDisplayName(idType)} Number <span className="text-red-500">*</span>
+                    {getIdTypeDisplayName(idType)} Number <span className="text-muted dark:text-gray-400">(Optional)</span>
                   </label>
                   <Input
                     type="text"
@@ -470,20 +510,22 @@ export default function HelperApplicationForm({ onComplete, onCancel }: HelperAp
                     onChange={(e) => handleIdNumberChange(e.target.value)}
                     placeholder={getIdTypePlaceholder(idType)}
                     error={fieldErrors.idNumber}
-                    required
                   />
                   <p className="mt-1 text-xs text-muted dark:text-gray-400">
-                    Format: {getIdTypePlaceholder(idType)}
+                    Format: {getIdTypePlaceholder(idType)} - Leave blank to skip ID verification
                   </p>
                 </div>
 
                 {/* ID Photo Upload */}
                 <div>
                   <label className="block text-sm font-medium mb-2 dark:text-white">
-                    ID Photo <span className="text-red-500">*</span>
+                    ID Photo {idNumber.trim() && <span className="text-red-500">*</span>}
+                    {!idNumber.trim() && <span className="text-muted dark:text-gray-400">(Optional)</span>}
                   </label>
                   <p className="text-xs text-muted dark:text-gray-400 mb-2">
-                    Upload a clear photo of your {getIdTypeDisplayName(idType)}. Make sure all details are visible.
+                    {idNumber.trim() 
+                      ? `Upload a clear photo of your ${getIdTypeDisplayName(idType)}. Make sure all details are visible.`
+                      : 'Required only if providing ID number above.'}
                   </p>
                   <input
                     ref={idPhotoInputRef}
@@ -518,10 +560,13 @@ export default function HelperApplicationForm({ onComplete, onCancel }: HelperAp
                 {/* Selfie with ID Upload */}
                 <div>
                   <label className="block text-sm font-medium mb-2 dark:text-white">
-                    Selfie with ID <span className="text-red-500">*</span>
+                    Selfie with ID {idNumber.trim() && <span className="text-red-500">*</span>}
+                    {!idNumber.trim() && <span className="text-muted dark:text-gray-400">(Optional)</span>}
                   </label>
                   <p className="text-xs text-muted dark:text-gray-400 mb-2">
-                    Take a selfie holding your {getIdTypeDisplayName(idType)} next to your face. Make sure your face and ID are clearly visible.
+                    {idNumber.trim()
+                      ? `Take a selfie holding your ${getIdTypeDisplayName(idType)} next to your face. Make sure your face and ID are clearly visible.`
+                      : 'Required only if providing ID number above.'}
                   </p>
                   <input
                     ref={selfieInputRef}
