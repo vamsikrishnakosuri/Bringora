@@ -62,12 +62,12 @@ export default function AuthCallback() {
           const googleAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture
           const googleName = user.user_metadata?.full_name || user.user_metadata?.name
           
-          // Check if profile exists
+          // Check if profile exists (handle case where profile doesn't exist yet)
           const { data: existingProfile, error: profileCheckError } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', user.id)
-            .single()
+            .maybeSingle() // Use maybeSingle() instead of single() to handle missing profiles gracefully
 
           // Upsert profile with Google data
           const profileData: any = {
@@ -116,13 +116,16 @@ export default function AuthCallback() {
             .from('profiles')
             .select('profile_completed, full_name, phone, latitude, longitude')
             .eq('id', user.id)
-            .single()
+            .maybeSingle() // Use maybeSingle() to handle missing profiles
 
           // If profile doesn't exist or is incomplete, redirect to onboarding
           if (profileError || !profile || !profile.profile_completed || !profile.phone || !profile.latitude || !profile.longitude) {
             navigate('/onboarding')
           } else {
-            navigate('/')
+            // Get redirect URL from query params if present
+            const urlParams = new URLSearchParams(window.location.search)
+            const redirectTo = urlParams.get('redirect') || '/'
+            navigate(redirectTo)
           }
         } else {
           console.error('No session found:', error)

@@ -14,3 +14,4 @@ NOTIFY pgrst, 'reload schema';
 -- 3. Restart your Supabase project (if you have access)
 
 
+

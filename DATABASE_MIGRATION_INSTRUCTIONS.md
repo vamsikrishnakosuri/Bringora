@@ -49,3 +49,4 @@ If you still see errors after running the migration:
 3. Try refreshing the Supabase schema cache (sometimes takes a few seconds)
 
 
+

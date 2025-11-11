@@ -5,7 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { supabase } from '@/lib/supabase'
 import { calculateDistance } from '@/lib/utils'
 import Card from '@/components/ui/Card'
-import { MapPin, Phone, Clock, DollarSign, ShoppingBag, Navigation, Send } from 'lucide-react'
+import { MapPin, Phone, Clock, DollarSign, ShoppingBag, Navigation, Send, AlertCircle } from 'lucide-react'
 import ContactModal from '@/components/ContactModal'
 import ServiceRadiusSetup from '@/components/ServiceRadiusSetup'
 import HelperApplicationForm from '@/components/HelperApplicationForm'
@@ -56,6 +56,7 @@ export default function OfferHelp() {
   const [requests, setRequests] = useState<HelpRequest[]>([])
   const [helperLocation, setHelperLocation] = useState<HelperLocation | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [contactModal, setContactModal] = useState<{ isOpen: boolean; request: HelpRequest | null }>({
     isOpen: false,
     request: null,
@@ -74,6 +75,7 @@ export default function OfferHelp() {
 
   useEffect(() => {
     if (user) {
+      setError(null)
       checkHelperStatus()
       loadHelperLocation()
     }
@@ -81,27 +83,42 @@ export default function OfferHelp() {
 
   const checkHelperStatus = async () => {
     try {
+      setLoading(true)
+      
       // Check if user is already a helper
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('is_helper, is_approved')
         .eq('id', user?.id)
         .single()
 
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error('Error checking profile:', profileError)
+        throw profileError
+      }
+
       if (profile?.is_helper && profile?.is_approved) {
         setIsHelper(true)
         setHasApplication(true)
+        setLoading(false)
         return
       }
 
       // Check if user has a pending application
-      const { data: application } = await supabase
+      const { data: applications, error: appError } = await supabase
         .from('helper_applications')
         .select('id, status')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single()
+
+      // Handle case where no application exists (not an error)
+      if (appError && appError.code !== 'PGRST116') {
+        console.error('Error checking application:', appError)
+        throw appError
+      }
+
+      const application = applications && applications.length > 0 ? applications[0] : null
 
       if (application) {
         setHasApplication(true)
@@ -118,10 +135,15 @@ export default function OfferHelp() {
         setIsHelper(false)
         setHasApplication(false)
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error checking helper status:', err)
       setIsHelper(false)
       setHasApplication(false)
+      const errorMessage = err.message || 'Failed to load helper status. Please refresh the page.'
+      setError(errorMessage)
+      showToast(errorMessage, 'error')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -290,6 +312,33 @@ export default function OfferHelp() {
       return `${miles.toFixed(1)} miles`
     }
     return `${distance.toFixed(1)} km`
+  }
+
+  // Show error message if there's an error
+  if (error && !loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white dark:from-[#0A0A0A] dark:via-[#0F0F0F] dark:to-[#0A0A0A] py-6 sm:py-8 lg:py-12 px-3 sm:px-4 lg:px-6">
+        <div className="container mx-auto max-w-3xl">
+          <Card className="backdrop-blur-xl bg-white/80 dark:bg-[#1A1A1A]/80 border-white/20 dark:border-white/10 text-center">
+            <div className="p-6">
+              <div className="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-12 h-12 text-red-600 dark:text-red-400" />
+              </div>
+              <h2 className="text-2xl font-bold mb-4 dark:text-white">Something went wrong</h2>
+              <p className="text-muted dark:text-gray-400 mb-6">{error}</p>
+              <div className="flex gap-3 justify-center">
+                <Button onClick={() => window.location.reload()} variant="outline">
+                  Refresh Page
+                </Button>
+                <Button onClick={() => navigate('/')}>
+                  Go to Homepage
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+    )
   }
 
   // Show helper application form if user is not a helper

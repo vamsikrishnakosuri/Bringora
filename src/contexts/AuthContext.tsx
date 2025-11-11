@@ -97,18 +97,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
+    try {
+      // Get redirect URL from current location if present
+      const currentPath = window.location.pathname
+      const redirectPath = currentPath && currentPath !== '/' && currentPath !== '/auth' 
+        ? currentPath 
+        : '/'
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectPath)}`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+          // Skip browser redirect for better Chrome compatibility
+          skipBrowserRedirect: false,
         },
-      },
-    })
-    if (error) {
-      throw error
+      })
+      if (error) {
+        console.error('Google OAuth error:', error)
+        throw error
+      }
+    } catch (err: any) {
+      console.error('Error initiating Google sign-in:', err)
+      // Provide more helpful error message for Chrome users
+      if (err.message?.includes('popup') || err.message?.includes('blocked')) {
+        throw new Error('Please allow popups or try using a different browser. Chrome may block third-party cookies.')
+      }
+      throw err
     }
   }
 
